@@ -1,0 +1,105 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing: border-box;
+}
+:root{
+    --bg_color_header : white;
+    --color_header : black;
+    --shadow_header : black;
+    --gap_header : 10px;
+    --size_height_header : 100px;
+}
+body{
+    width: 100%;
+    min-height: 100vh;
+}
+
+header{
+    width: 100%;
+    height:var(--size_height_header);
+    background-color: var(--bg_color_header);
+    color: var(--color_header);
+    display: flex;
+    box-shadow: 2px 0 5px var(--shadow_header);
+    justify-content: space-between;
+    padding: 0 20px;
+    align-items: center;
+}
+
+
+header .logo_and_close , header .logo_and_close .logo_admin{
+    display: flex;
+    gap:  var(--gap_header);
+}
+
+
+/* start left */
+.left_admin_header{
+    display: flex;
+    gap: var(--gap_header);
+    align-items: center;
+}
+
+.left_admin_header ul {
+    list-style: none;
+}
+
+/* start hidden menu */
+
+.left_admin_header ul .menu_notification{
+    display: none;
+}
+
+
+
+
+/* end styling hedaer */
+
+/* start container */
+.container_admin{
+    display: flex;
+    width: 100%;
+}
+
+/* start styling navbar */
+
+:root{
+    --box_shadow_nav_bar : 0 2px 4px black;
+}
+
+
+.navbar{
+    width: 20%;
+    min-height: calc(100vh - 110px);
+    margin-top : 6px;
+    background-color: var(--bg_color_header);
+    box-shadow: var(--box_shadow_nav_bar);
+    display: flex;
+    flex-direction: column;
+    left: 0;
+}
+
+.navbar > div{
+    position: relative;
+    width: 100%;
+}
+
+.navbar > div > button{
+    width: 100%;
+    padding: 20px 0;
+}
+
+button{
+    cursor: pointer;
+}
+
+
+
+.main_accueil{
+    min-width: 80%;
+    color: green;
+    padding: 5%;
+}
+
+
