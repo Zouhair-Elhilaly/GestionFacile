@@ -68,30 +68,76 @@ header .logo_and_close , header .logo_and_close .logo_admin{
     --box_shadow_nav_bar : 0 2px 4px black;
 }
 
-
-.navbar{
+.navbar {
     width: 20%;
     min-height: calc(100vh - 110px);
-    margin-top : 6px;
+    margin-top: 6px;
     background-color: var(--bg_color_header);
     box-shadow: var(--box_shadow_nav_bar);
     display: flex;
     flex-direction: column;
     left: 0;
+    padding: 10px 0; /* Espacement interne */
+    border-radius: 8px; /* Coins arrondis */
 }
 
-.navbar > div{
+.navbar > div {
     position: relative;
     width: 100%;
+    height: fit-content;
+    text-align: center;
+    margin: 5px 0; /* Espace entre les boutons */
+    transition: background-color 0.3s; /* Animation fluide */
 }
 
-.navbar > div > button{
-    width: 100%;
-    padding: 20px 0;
+.navbar > div:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Effet hover subtil */
 }
 
+.navbar > div > a {
+    display: block;
+    padding: 12px 15px; /* Espacement interne agréable */
+    color: #333; /* Couleur de texte sombre */
+    text-decoration: none; /* Pas de soulignement */
+    font-weight: 500; /* Texte un peu plus gras */
+    transition: all 0.3s ease; /* Animation douce */
+    border-radius: 4px; /* Coins légèrement arrondis */
+
+    transform: translateX(0);
+    transition: all .5s linear;
+}
+
+.navbar > div > a:hover {
+    color: #000; /* Texte plus foncé au survol */
+    background-color: rgba(0, 0, 0, 0.05); /* Fond légèrement gris au survol */
+    transform: translateX(5px); /* Petit déplacement vers la droite */
+}
+
+/* Style pour le bouton actif (page courante) */
+.navbar > div > a.active {
+    background-color: var(--primary_color); /* Couleur primaire */
+    color: white;
+    font-weight: bold;
+}
+
+/* Icônes (si vous en ajoutez plus tard) */
+.navbar > div > a::before {
+    content: "";
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    vertical-align: middle;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
 button{
     cursor: pointer;
+}
+
+.close{
+    transition: all .7s linear;
+    transform: translateX(-100%);
 }
 
 
@@ -100,6 +146,91 @@ button{
     min-width: 80%;
     color: green;
     padding: 5%;
+    position: relative;
+}
+
+
+/* start admin main */
+
+.table_admin table{
+    width: 100%;
+    text-align: center;
+    border: 1px solid blue;
+}
+
+.table_admin table thead{
+    margin-bottom: 10px;
+    padding: 10px ;
+    outline-color:  rgb(61, 50, 50);
+    background-color: aliceblue;
+}
+
+
+
+
+
+/* satrt from add admin */
+
+.form_add_admin{
+    padding: 10px;
+    width: 60%;
+    margin: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50% , -50%);
+    display: none;
+}
+
+.form_add_admin form{
+    background-color: aqua;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    text-align: center;
+}
+
+
+.form_add_admin form input{
+    border: none;
+    outline: none;
+    padding: 4px 10px;
+    margin: 10px 0;
+    transition: all .3s linear;
+    
+}
+
+/* .form_add_admin form .label{
+    position: relative;
+    left: 0;
+} */
+
+.form_add_admin form .label label{
+    cursor: pointer;
+    border: 1px solid black;
+    padding: 5px 10px;
+    margin: 4px 0;
+    background-color: #333;
+    color: white;
+}
+
+.form_add_admin form input[type="submit"]{
+    cursor: pointer;
+}
+
+.form_add_admin form input:focus{
+    outline: 1px solid blue;
+}
+
+
+/* start style close form  */
+.form_add_admin form #close_form_add_admin{
+    position: absolute;
+    top: 2%;
+    padding: 5px;
+    cursor: pointer;
+    right: 2%;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 

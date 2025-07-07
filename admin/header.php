@@ -16,7 +16,7 @@
                 </h3>
             </div>
             <div class="close_tag">
-                <button>=</button>
+                <button id="closebtn" onclick="closeNavbar()" >=</button>
             </div>
         </div>
         <div class="left_admin_header">
