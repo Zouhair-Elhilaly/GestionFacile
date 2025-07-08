@@ -41,9 +41,9 @@ function closeNavbar(){
     transition: transform 6s linear;
     transform-origin: left; 
     transform: scaleX(1); 
-    width: 100vw !important;
+    width: 500px;
     position: fixed;
-    left: 0;
+    left: 10%;
     `;
     
   }else{

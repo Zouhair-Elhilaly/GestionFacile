@@ -25,6 +25,11 @@ header{
     justify-content: space-between;
     padding: 0 20px;
     align-items: center;
+
+    /* position: fixed;  * Fixe l'en-tête /
+    top: 0;           / Position en haut /
+    left: 0;          / Alignement à gauche *
+    z-index: 99; */
 }
 
 
@@ -152,10 +157,11 @@ button{
 
 /* start admin main */
 
-.table_admin table{
+/* .table_admin table{
     width: 100%;
     text-align: center;
     border: 1px solid blue;
+    background-color: red;
 }
 
 .table_admin table thead{
@@ -165,9 +171,97 @@ button{
     background-color: aliceblue;
 }
 
+.table_admin table td {
+    padding: 20px 10px;
+} */
 
 
 
+
+/* start style deepseek table */
+
+.table-modern {
+    width: 90%;
+    max-width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative; /* Changé de absolute à relative */
+    margin: 20px auto; /* Centrage */
+}
+
+/* Supprimez la règle .table-modern table (inutile) */
+
+.table-modern thead {
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    color: white;
+    display: none; /* Masqué par défaut sur mobile */
+}
+
+.table-modern th, 
+.table-modern td {
+    padding: 12px 15px; /* Réduit le padding sur mobile */
+    text-align: left;
+    display: block; /* Empilement vertical sur mobile */
+    width: 100%;
+}
+
+.table-modern tr {
+    display: block;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.table-modern td::before {
+    /* Ajout des labels pour chaque cellule */
+    content: attr(data-label);
+    font-weight: bold;
+    display: inline-block;
+    width: 120px;
+    color: #6e8efb;
+}
+
+.table-modern tr:last-child {
+    margin-bottom: 0;
+}
+
+/* Styles pour écrans moyens et grands */
+@media (min-width: 768px) {
+    .table-modern {
+        width: 95%;
+    }
+    
+    .table-modern thead {
+        display: table-header-group; /* Réaffiche l'en-tête */
+    }
+    
+    .table-modern tr {
+        display: table-row;
+        margin-bottom: 0;
+    }
+    
+    .table-modern th,
+    .table-modern td {
+        display: table-cell;
+        width: auto;
+        padding: 12px 20px;
+    }
+    
+    .table-modern td::before {
+        display: none; /* Masque les labels sur desktop */
+    }
+}
+
+/* Version imprimable */
+@media print {
+    .table-modern {
+        box-shadow: none;
+        width: 100%;
+    }
+}
+
+/* end style deepseek table */
 
 /* satrt from add admin */
 
@@ -176,7 +270,8 @@ button{
     width: 60%;
     margin: auto;
     position: absolute;
-    top: 50%;
+
+    top: 30%;
     left: 50%;
     transform: translate(-50% , -50%);
     display: none;
