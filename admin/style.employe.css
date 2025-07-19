@@ -1,0 +1,15 @@
+.table-modern thead :hover{
+    background: linear-gradient(135deg, #6e8efb, #a777e3);   /*le  meme color*/
+
+}
+ .table-modern table {
+    flex: 1;
+}
+.table-modern {
+width: fit-content;
+overflow-x: scroll;
+
+} 
+
+
+

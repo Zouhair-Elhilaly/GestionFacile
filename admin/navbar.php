@@ -1,4 +1,5 @@
 
+
 <!-- start navbar -->
 <div class="container_admin">
 <div class="navbar">
@@ -6,13 +7,15 @@
         <a href="#" class="accueil_btn">Accueil</a>  <!--background image = icon -->
     </div>
     <div class="produit">
-        <a href="#" class="produit_btn">Produit</a>  <!--background image = icon -->
+        <a href="view_product.php" class="produit_btn">Produit</a>  <!--background image = icon -->
     </div>
-    <div class="admin">
-        <a href="view_admin.php" class="admin_btn"  >admin</a>  <!--background image = icon -->
+    <div class="category">
+        <a href="view_category.php" class="category_btn">Category</a>  <!--background image = icon -->
     </div>
+    <div  class="admin">
+    <a id="admin_click" href="view_admin.php" class="admin_btn">Admin</a>    </div>
     <div class="employee">
-        <a href="#" class="employee_btn">employes</a>  <!--background image = icon -->
+        <a href="view_employee.php" class="employee_btn">employes</a>  <!--background image = icon -->
     </div>
     <div class="Reservation">
         <a href="#" class="Reservation_btn">Reservation</a>  <!--background image = icon -->

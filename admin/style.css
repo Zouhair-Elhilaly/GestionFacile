@@ -9,6 +9,7 @@
     --shadow_header : black;
     --gap_header : 10px;
     --size_height_header : 100px;
+    --add_admin_btn: rgb(2, 182, 17);
 }
 body{
     width: 100%;
@@ -65,6 +66,9 @@ header .logo_and_close , header .logo_and_close .logo_admin{
 .container_admin{
     display: flex;
     width: 100%;
+}
+.container_admin .navbar{
+    width: 20%;
 }
 
 /* start styling navbar */
@@ -141,8 +145,11 @@ button{
 }
 
 .close{
-    transition: all .7s linear;
-    transform: translateX(-100%);
+    /* transition: all .7s linear;
+    transform: translateX(-100%); */
+    width: 0;
+    overflow: hidden;
+    transition: width 0.3s ease;
 }
 
 
@@ -213,6 +220,11 @@ button{
     border-bottom: 1px solid #f0f0f0;
 }
 
+.table-modern tr:hover{
+    transition: all .3s linear;
+    background-color: #dad2d2;;
+}
+
 .table-modern td::before {
     /* Ajout des labels pour chaque cellule */
     content: attr(data-label);
@@ -263,60 +275,182 @@ button{
 
 /* end style deepseek table */
 
-/* satrt from add admin */
 
-.form_add_admin{
-    padding: 10px;
-    width: 60%;
-    margin: auto;
-    position: absolute;
-
-    top: 30%;
-    left: 50%;
-    transform: translate(-50% , -50%);
-    display: none;
-}
-
-.form_add_admin form{
-    background-color: aqua;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    text-align: center;
-}
-
-
-.form_add_admin form input{
+/* start add admin  btn*/
+.add_admin{
+    padding: 10px 20px ;
+    font-weight: bold;
+    font-size: 18px;
+    font-family: arial;
+    background-color: var(--add_admin_btn);
     border: none;
     outline: none;
-    padding: 4px 10px;
-    margin: 10px 0;
-    transition: all .3s linear;
-    
-}
-
-/* .form_add_admin form .label{
-    position: relative;
-    left: 0;
-} */
-
-.form_add_admin form .label label{
-    cursor: pointer;
-    border: 1px solid black;
-    padding: 5px 10px;
-    margin: 4px 0;
-    background-color: #333;
+    cursor:pointer;
     color: white;
+    border-radius: 5px;
+}
+.add_admin a{
+    text-decoration: none;
+}
+/* end add admin btn */
+
+/* satrt from add admin */
+/* Style de base du conteneur du formulaire */
+.form_add_admin {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    /* height: 50%; */
+    max-width: 600px;
+    min-width: 300px;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: none;
+    transition: all 0.4s ease;
+    border: 1px solid #e0e0e0;
 }
 
-.form_add_admin form input[type="submit"]{
+/* Quand le formulaire est actif */
+.form_add_admin.active {
+    display: block;
+    animation: fadeInScale 0.4s ease forwards;
+}
+
+/* Style du formulaire */
+.form_add_admin form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+}
+
+/* Titres du formulaire */
+.form_add_admin form h3 {
+    margin: 0;
+    padding-bottom: 10px;
+    text-align: center;
+    color: #333;
+    font-size: 1.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+/* Bouton de fermeture */
+#close_form_add_admin {
+    position: absolute;
+    top: 5px;
+    right: 10px;
     cursor: pointer;
+    font-size: 1.2rem;
+    color: #888;
+    transition: color 0.3s;
 }
 
-.form_add_admin form input:focus{
-    outline: 1px solid blue;
+#close_form_add_admin:hover {
+    color: #333;
 }
 
+/* Champs de saisie */
+.form_add_admin form input {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin: 5px 0;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #f9f9f9;
+}
+
+.form_add_admin form input:focus {
+    outline: 2px solid #4a90e2;
+    border-color: transparent;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+/* Style spécial pour le label du fichier */
+.form_add_admin .label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.form_add_admin .label label {
+    cursor: pointer;
+    padding: 10px 20px;
+    background-color: #4a90e2;
+    color: white;
+    border-radius: 5px;
+    text-align: center;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 200px;
+}
+
+.form_add_admin .label label:hover {
+    background-color: #3a7bc8;
+    transform: translateY(-2px);
+}
+
+/* Bouton de soumission */
+.form_add_admin form input[type="submit"] {
+    background-color: #4a90e2;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    padding: 12px;
+    /* margin-top: 10px; */
+    transition: all 0.3s ease;
+}
+
+.form_add_admin form input[type="submit"]:hover {
+    background-color: #3a7bc8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* Arrière-plan flou (optionnel) */
+.form_add_admin::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+    backdrop-filter: blur(3px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form_add_admin {
+        width: 85%;
+        padding: 15px;
+    }
+    
+    .form_add_admin form input {
+        padding: 10px 12px;
+    }
+}
 
 /* start style close form  */
 .form_add_admin form #close_form_add_admin{
@@ -329,3 +463,16 @@ button{
 }
 
 
+
+
+/* start overley d form */
+.overlay {
+    display: none; /* cacher par défaut */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* couleur semi-transparente */
+    z-index: 999; /* au-dessus de tout */
+  }

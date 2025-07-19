@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+
+
+
+    
+        <input type="text" name="username" id="test">
+     
+
+    <img src="" alt="">
+    <script>
+        let img = document.querySelector("img");
+
+        test.addEventListener('keyup',() => {
+
+          if(test.value != ''){
+            fetch('http://localhost/projet_stage/laravel.php?search='+test.value).then(res => res.json()).then(data => {
+        console.log(data)
+        if(data != ''){
+          img.src = 'admin/uploads_product/'+data[0][3];
+        }
+      }).catch(error =>{ 
+        console.log("error");
+      })
+
+    };
+
+        });
+
+       
+    
+
+
+    </script>
+</body>
+</html>

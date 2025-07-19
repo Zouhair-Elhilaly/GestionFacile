@@ -4,8 +4,11 @@ session_start();
 
 require_once "../include/conn_db.php";
 
-if(isset($_SESSION['error'])){
-    unset($_SESSION['error']);
+require_once "../include/config.php";  //configuration db
+
+
+if(isset($_SESSION['error_exist'])){
+    unset($_SESSION['error_exist']);
     echo "<script>alert('admin deja exist')</script>";
 }
 
@@ -28,6 +31,13 @@ if(isset($_SESSION['nom_update'])){
     echo "<script> document.querySelector('.close_form_add_admin').style.display = 'block'  </script>" ;
 }
 
+
+
+// start affichage size image et trop
+if(isset($_SESSION['trop_image_admin'])){
+    unset($_SESSION['trop_image_admin']);
+    echo "<script>alert('L'image est trop grande (max 10 Mo)')</script>";
+}
 ?>
 
 <link rel="stylesheet" href="style.css">
@@ -57,19 +67,21 @@ $stmt = $conn->prepare("SELECT * FROM admin ORDER BY id");
 
 $stmt->execute();
 $res = $stmt->get_result();
+$i = 1;
 if($res->num_rows >0){
     while($row = $res->fetch_assoc()){
         $key = bin2hex(openssl_random_pseudo_bytes(32)); 
        echo " <tr>
-                    <td>$row[id]</td>
-                    <td><img style='width: 120px ; height: 120px ' src='accept_data/uploads/$row[image]' alt='img'></td>
+                    <td>$i</td>
+                    <td><img style='width: 120px ; height: 120px ' src='uploads/$row[image]' alt='img'></td>
                     <td>$row[nom] $row[prenom]</td>
                     <td>$row[telephone]</td>
                     <td>$row[email]</td>
-                    <td><a href='accept_data/update_admin.php?id=$row[id]'>Update</a></td>
-                    <td ><a href='accept_data/delete_admin.php?id=$row[id]'>Delete</a></td>
+                    <td><a href='update_admin.php?id=$row[id]'>Update</a></td>
+                    <td ><a href='delete_admin.php?id=$row[id]'>Delete</a></td>
                 </tr>
                 ";
+                $i++;
     }
 }
 
@@ -84,16 +96,19 @@ if($res->num_rows >0){
             </tbody>
         </table>
     </div>
+    <div class="overlay"></div>   /<!-- background overlay
+    
     <!-- start from add admin  -->
 <div class="form_add_admin">
-    <form action="accept_data/insert_admin.php" method="POST" enctype="multipart/form-data" >
-        <h3>Add new admin</h3>
+    <form action="insert_admin.php" method="POST" enctype="multipart/form-data" >
+        <h3> Ajouter un administrateur</h3>
         <h3 id="close_form_add_admin" >X</h3>
-        <input type="text" name="nom" placeholder="Ecrire le nom"  <?php if(isset($_SESSION['nom'])){ echo $_SESSION['nom'];}?>  >
+        <input type="text" name="nom" placeholder="Ecrire le nom"    >
         <input type="text" name="prenom" placeholder="Ecrire prenom">
         <input type="email" name="email" id="" placeholder="Ecrire Email">
         <input type="text" name="phone" id="" placeholder="Ex : 0101910087">
-        <input type="password" name="password" id="" placeholder="Ecrire Password">
+        <!-- <input type="password" name="password" id="" placeholder="Ecrire Password"> -->
+        <input type="text" name="parent_admin_id" placeholder="Ecrire par ..."    >
         <div class="label">
             <label for="file">Choisir un image</label>
             <input style="opacity:0; z-index: -1;" type="file" name="image" id="file" />
@@ -105,7 +120,7 @@ if($res->num_rows >0){
 </div>
 
 
-
+<?php if(isset($_SESSION['nom'])){ echo $_SESSION['nom'];}?>
 
 <script src="main_add.js"></script>
 

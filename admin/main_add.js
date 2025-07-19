@@ -4,10 +4,16 @@ let btnAddAdmin = document.getElementById("btn_click_add");
 
 let form_add_admin = document.querySelector(".form_add_admin");
 
+let overlay = document.querySelector(".overlay");
 
 btnAddAdmin.addEventListener('click' , () => {
     form_add_admin.style.cssText = `
     display: block;
+    background-blend-mode: lighten;
+    z-index: 1000;
+    `;
+    overlay.style.cssText = `
+    display: block
     `;
     // document.body.style.backgroundColor = 'grey';
 })
@@ -23,6 +29,9 @@ close_form_add_admin.addEventListener('click' , () => {
     form_add_admin.style.cssText = `
     display: none;
     `;
+    overlay.style.cssText = `
+    display: none;
+    `;
 });
 
 
@@ -32,25 +41,24 @@ let navbar = document.querySelector(".navbar");
 
 let main_accueil = document.querySelector(".main_accueil");
 
-
-function closeNavbar(){
+function closeNavbar() {
   navbar.classList.toggle("close");
-  if(navbar.classList.contains("close")){
-    console.log("before contain");
+
+  if (navbar.classList.contains("close")) {
     main_accueil.style.cssText = `
-    transition: transform 6s linear;
-    transform-origin: left; 
-    transform: scaleX(1); 
-    width: 500px;
-    position: fixed;
-    left: 10%;
-    `;
-    
-  }else{
-    navbar.classList.remove("close");
+          width: calc(100% - 0px);
+          position: relative;
+      `;
+  } else {
     main_accueil.style.cssText = `
-    width : 80%;
-    position: relative;
-    `;
+          width: calc(100% - 250px); /* largeur de la navbar */
+          position: relative;
+      `;
   }
+
+  // Force recalcul pour résoudre le bug de scroll
+  document.body.offsetHeight;
 }
+
+
+
