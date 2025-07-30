@@ -1,0 +1,144 @@
+/* designe table et btn  */
+    .table-modern{
+        width: fit-content;
+        overflow-x: scroll;
+    }
+/* start designe btn */
+.action-btn {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+table{
+    overflow-x: scroll;
+    width: auto;
+}
+
+.update-btn {
+    background-color: #4CAF50; /* Vert */
+    color: white;
+    border: 1px solid #45a049;
+}
+
+.update-btn:hover {
+    background-color: #45a049;
+    transform: translateY(-1px);
+}
+
+.delete-btn {
+    background-color: #f44336; /* Rouge */
+    color: white;
+    border: 1px solid #d32f2f;
+    margin-left: 5px;
+}
+
+.delete-btn:hover {
+    background-color: #d32f2f;
+    transform: translateY(-1px);
+}
+
+
+/* start designe form ajoute admin */
+.ajoute_admin_form {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* transform: translate(-50%, -50%); */
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+
+
+.ajoute_admin_form form {
+    position: relative;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.ajoute_admin_form h3 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+#close_form_add_admin {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #666;
+}
+
+.ajoute_admin_form input[type="text"],
+.ajoute_admin_form input[type="email"],
+.ajoute_admin_form input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.label {
+    display: block;
+    margin-bottom: 1rem;
+    text-align: center;
+    padding: 12px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px dashed #999;
+}
+
+.label:hover {
+    background-color: #e0e0e0;
+}
+
+.ajoute_admin_form input[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.ajoute_admin_form input[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .ajoute_admin_form form {
+        padding: 1.5rem;
+        width: 95%;
+    }
+    
+    .ajoute_admin_form input[type="text"],
+    .ajoute_admin_form input[type="email"],
+    .ajoute_admin_form input[type="password"] {
+        padding: 10px;
+    }
+}
+/* end style form ajout admin */

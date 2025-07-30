@@ -3,21 +3,16 @@
 
 session_start();
 
-require_once '../include/conn_db.php';
+require_once '../include/config.php';
 
 include "functions/chiffre.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET'){
-    $id = (int)decryptId($_GET['id']) ;
+    $id = filter_var(((int)decryptId($_GET['id'])), FILTER_SANITIZE_NUMBER_INT) ;
 
 
-    // delete quantite stock produits
-        $delte_quantite = $conn->prepare(query: "DELETE FROM quantite_produits  WHERE id_produit = ? ;");
-        $delte_quantite ->bind_param('i' , $id);
-      if(  $delte_quantite->execute()){
-        $delte_quantite->close();
-
-    $stmt = $conn->prepare(query: "DELETE FROM produits WHERE id = ? ;");
+ 
+    $stmt = $conn1->prepare("DELETE FROM produit WHERE id_produit = ? ;");
     $stmt->bind_param('s' , $id);
 
     if($stmt->execute()){
@@ -25,7 +20,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
             echo "Suppression réussie";
             
 
-            $_SESSION['delete_category'] = 1;
+            $_SESSION['delete_produit'] = 1;
 
             
 
@@ -39,7 +34,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
         echo "not success";
     }
 
-}
+
 
 
 ?>

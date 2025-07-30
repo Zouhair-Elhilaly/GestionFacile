@@ -1,22 +1,35 @@
 
 
 <?php  
-include "../include/conn_db.php";
+
 session_start();
+include "../include/config.php";
 require_once 'header.php';
- include 'functions/chiffre.php';  
+include 'functions/chiffre.php';  
 
  
 
-// // start check insertion situation
-// if(isset($_SESSION['error_category'])){
-//   if(gettype($_SESSION['error_category']) == 'string'){
-//     $var = $_SESSION['error_category'];
-//       echo $var  ;
-//     unset($_SESSION['error_category']);
+ // start check insertion situation
+if(isset($_SESSION['insert_category'] )){
+  if($_SESSION['insert_category']  != ''){
+    $var = $_SESSION['insert_category'] ;
+      echo "<script>alert('$var')</script>";
+    unset($_SESSION['insert_category'] );
+  }
+}
+
+
+
+ 
+ // start check delete category
+// if(isset($_SESSION['delete_category'] )){
+//   if($_SESSION['delete_category']  != ''){
+//     $var = $_SESSION['delete_category'] ;
+//       echo "<script>alert('$var')</script>";
+//     unset($_SESSION['delete_category'] );
 //   }
 // }
-// // end check insertion situation
+
 // ?>
 
 <link rel="stylesheet" href="style.css">
@@ -25,6 +38,7 @@ require_once 'header.php';
 
 <!-- Navigation bar -->
 <?php require_once 'navbar.php' ?>
+
 <div class="overlay"></div> <!-- background overlay -->
 
 <!-- Main employee space design -->
@@ -33,31 +47,35 @@ require_once 'header.php';
 
 
    <div class="navbar_category">
-  <?php  // start check insertion situation
-if(isset($_SESSION['error_category'])){
-  if(gettype($_SESSION['error_category']) == 'string'){
-    $var = $_SESSION['error_category'];
-      echo "<h2>".$var."</h2>";
-    unset($_SESSION['error_category']);
-  }
-}
-   ?> 
+
+
     <button onclick="display()" id="btn_click_add_category" class="add_category">
-       <a  href="#">Add Category</a>
+       Ajouter Category
      </button>
      <div id="search">
         <input type="search" id="search_view_category" name="category_search" placeholder="Search">
      </div>
    </div>
 
-<!-- 4ir exemple_fetch_search -->
-   <script src="../exemple_fetch_search.js"></script>
 
    <!-- Display existing categories from database -->
    <div class="category-card" >
+      <div style="overflow-x:auto;">
+  <table style="width:100%; border-collapse: collapse;">
+    <thead>
+      <tr style="background-color: #f2f2f2;">
+        <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">ID</th>
+        <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Image</th>
+        <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Nom</th>
+        <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Description</th>
+        <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Quantité</th>
+        <th style="padding: 8px; text-align: left; border: 1px solid #ddd;" colspan="3">Modification</th>
+      </tr>
+    </thead>
+    <tbody>
     <?php 
     
-    $stmt = $conn->prepare("SELECT * FROM category ORDER BY id");
+    $stmt = $conn1->prepare("SELECT * FROM category ORDER BY id_category");
 
     $stmt->execute();
     $res = $stmt->get_result();
@@ -66,36 +84,39 @@ if(isset($_SESSION['error_category'])){
 
     if($res->num_rows >0){
         while($row = $res->fetch_assoc()){
-          $chiffrement = encryptId($row['id']);
-          $quntiteProduct = $conn->prepare("SELECT COUNT(*) as res FROM produits WHERE category_id = ?");
-          $quntiteProduct->bind_param('i' , $row['id']);
+          $idCH = encryptId($row['id_category']);
+          $quntiteProduct = $conn1->prepare("SELECT COUNT(*) as res FROM produit WHERE id_category = ?");
+          $quntiteProduct->bind_param('i' , $row['id_category']);
           $quntiteProduct->execute();
           $result = $quntiteProduct->get_result()->fetch_assoc();
           echo "
      
-      <div class='category-header'>
-          <div class='category-image'>
-              <img src='uploads_category/$row[image]' alt='Category Image' class='category-img'>
-          </div>
-          <div class='text'>
-              <h3>$row[name]</h3>
-              <p class='category-description'>$row[description]</p>
-          </div>
-          <div class='category-actions'>
-              <a class='btn-view-products' href='#'>View Products</a>
-              <a class='btn-edit-category' href='update_category.php?id=$chiffrement'>Edit</a>
-              <a class='btn-delete-category' href='view_category.php?id=$chiffrement''>Delete</a>
-          </div>
-          <div class='products-count'><span class='result_product'>$result[res]</span> products</div>
-      </div>
+    
+      <tr>
+        <td style='padding: 8px; border: 1px solid #ddd;'>$i</td>
+        <td style='padding: 8px; border: 1px solid #ddd;' class='category-image'> <img src='image/image_category/$row[image]' class='category-img'></td>
+        <td style='padding: 8px; border: 1px solid #ddd;'>$row[nom_category]</td>
+        <td style='padding: 8px; border: 1px solid #ddd;'>$row[description]</td>
+        <td style='padding: 8px; border: 1px solid #ddd;' class='products-count'>$result[res]</td>
+        <td style='padding: 8px; border: 1px solid #ddd;'><a href='#' class='btn-edit-category' >View produits</a></td>
+        <td style='padding: 8px; border: 1px solid #ddd;'><a href='update_category.php?id=$idCH' class='btn-view-products' >Modifier</a></td>
+        <td style='padding: 8px; border: 1px solid #ddd;'><a href='view_category.php?id=$idCH' class='btn-delete-category' >Supprimer</a></td>
+      </tr>
+     
 ";}}
 
 ?>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- end style tableau  -->
        
  <!-- Category Modal -->
    <div class="modal category-modal" id="categoryModal" style="display: none;">
      <div class="modal-content">
-       <span class="close-modal">&times;</span>
+       <span class="close-modale">&times;</span>
        <h3 id="modalTitle">New Category</h3>
        <form action='insert_category.php' method="POST" id="categoryForm" enctype="multipart/form-data">
          <input type="hidden" id="categoryId" name="category_id">
@@ -105,7 +126,7 @@ if(isset($_SESSION['error_category'])){
          </div>
          <div class="form-group">
            <label for="categoryDescription">Description</label>
-           <textarea id="categoryDescription" name="category_description"></textarea>
+           <textarea id="categoryDescription" name="description"></textarea>
          </div>
          <div class="label">
             <label for="file">Choisir un image</label>
@@ -135,7 +156,29 @@ if(isset($_SESSION['error_category'])){
 
  <?php 
  
- 
+  // start affiche delted succcessfully
+
+if(isset($_SESSION['delete_category'] )){
+  if($_SESSION['delete_category'] != ''){
+    ?>
+     <script>
+        Swal.fire({
+            title: 'Succès !',
+            text: 'La suppression a été effectuée.',
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK',
+            backdrop: 'rgba(0,0,0,0.4)'
+        }).then(() => {
+            // Optionnel : Recharger la page pour actualiser les données
+            window.location.href = 'view_category.php';
+        });
+    </script>
+<?php
+    unset($_SESSION['delete_category'] );
+  }
+}
+//  satrt affiche popup delete category 
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['id'])) {
     $id = (int) decryptId($_GET['id']);
@@ -162,74 +205,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['id'])) {
             }
         });
     </script>
+    
+<!--  satrt affiche popup delete category  -->
+
     <?php
     exit();
 }
 
 
-
-// start affiche deeted succcessfully
-
-if(isset($_SESSION['delete_category'] )){
-  if($_SESSION['delete_category'] == 1){
-    ?>
-
-     <script>
-        Swal.fire({
-            title: 'Succès !',
-            text: 'La suppression a été effectuée.',
-            icon: 'success',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'OK',
-            backdrop: 'rgba(0,0,0,0.4)'
-        }).then(() => {
-            // Optionnel : Recharger la page pour actualiser les données
-            window.location.href = 'view_category.php';
-        });
-    </script>
-<?php
-    unset($_SESSION['delete_category'] );
-  }
-}
  
  
  ?>
-
-
  <!-- end popup ************************************************************************* -->
 
  
 
 
 
-<script src="main_add.js"></script>
+<!-- <script src="main_add.js"></script> -->
 
 
-   <script >
-    // Sélection des éléments
-let closeBtn = document.querySelector(".close-modal");
-let modal = document.querySelector(".category-modal");
-let addCategoryBtn = document.getElementById("btn_click_add_category"); // Modifié pour utiliser getElementById
 
-// Fermer la modal quand on clique sur ×
-closeBtn.addEventListener("click", () => {
-  modal.style.display = "none";
-});
-
-// Ouvrir la modal quand on clique sur "Add Category"
-addCategoryBtn.addEventListener("click", (e) => {
-  e.preventDefault(); // Empêche le comportement par défaut du lien
-  modal.style.display = "block";
-   modal.style.cssText = ` 
-   z-index: 99;
-   `;
-});
-
-// Optionnel: Fermer la modal si on clique en dehors
-window.addEventListener("click", (e) => {
-  if (e.target === modal) {
-    modal.style.display = "none";
-  }
-});
-
-   </script>
+   <script src="category.js"></script>

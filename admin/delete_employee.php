@@ -3,13 +3,14 @@
 
 session_start();
 
-require_once '../include/conn_db.php';
+require_once '../include/config.php';
+include 'functions/chiffre.php';
 
 if($_SERVER['REQUEST_METHOD'] == 'GET'){
-    $id = $_GET['id'] ;
+    $id = decryptId(strip_tags(trim($_GET['id']))) ;
 
-    $stmt = $conn->prepare("DELETE FROM employees WHERE id = ? ;");
-    $stmt->bind_param('s' , $id);
+    $stmt = $conn1->prepare("DELETE FROM employé WHERE id = ? ;");
+    $stmt->bind_param('i' , $id);
 
     if($stmt->execute()){
         echo "1";

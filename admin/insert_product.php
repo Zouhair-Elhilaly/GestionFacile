@@ -1,33 +1,40 @@
 <?php
 
 session_start();
-require_once '../include/conn_db.php';
+require_once '../include/config.php';
 
 // Vérifier si le formulaire est soumis
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    // Initialiser les variables et messages d'erreur
-    $errors = [];
-    $success = false;
+   $_SESSION['insert_product'] = ''; // Réinitialiser l'erreur
 
     // Valider et nettoyer les entrées
     $nom = strip_tags(trim($_POST['productName'] ?? ''));
-    $quantite = filter_input(INPUT_POST ,  'productQuantite' , FILTER_SANITIZE_NUMBER_INT);
-    $categoryName = filter_input(INPUT_POST , 'productCategory' , FILTER_SANITIZE_NUMBER_INT);
+    $stock = filter_input(INPUT_POST ,  'productQuantite' , FILTER_SANITIZE_NUMBER_INT);
+    $categoryId = filter_input(INPUT_POST , 'productCategory' , FILTER_SANITIZE_NUMBER_INT);
     
     // Validation des champs
-    if (empty($nom)){header("location:view_product.php?error=Le nom est requis");exit;};
-    if (empty($quantite)){header("location:view_product.php?error=La quantite est requis");exit;};
+    if (empty($nom)){
+        $_SESSION['insert_product'] = 'Le nom est requis';
+        header("location:view_product.php");
+        exit;
+    };
+
+    if (empty($stock)){
+        $_SESSION['insert_product'] = 'La quantite est requis';
+        header("location:view_product.php");
+        exit;
+    };
 
     
     // Vérifier si l'admin existe déjà
-    $stmt = $conn->prepare("SELECT id FROM produits WHERE nom = ?");
+    $stmt = $conn1->prepare("SELECT id_produit FROM produit WHERE nom_produit = ?");
     $stmt->bind_param('s', $nom);
     $stmt->execute();
     
     if ($stmt->get_result()->num_rows > 0) {
-        $_SESSION['error_exist'] = "Le produit  existe déjà";
-        header("Location:view_category.php");
+        $_SESSION['insert_product'] = "Le produit  existe déjà";
+        header("Location:view_product.php");
         exit;
     }
     
@@ -37,83 +44,105 @@ $fileName = null;
 if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
 
     if ($_FILES['image']['error'] !== UPLOAD_ERR_OK) {
-        $_SESSION['error'] = "Erreur lors de l'upload de l'image.";
+        $_SESSION['insert_product']= "Erreur lors de l'upload de l'image.";
         header("location:view_product.php");
         exit;
     }
 
-    $targetDir = "uploads_produits/";
+           $fileTmpPath = $_FILES['image']['tmp_name'];
+            $fileName = $_FILES['image']['name'];
 
-    // Créer le dossier s'il n'existe pas
-    if (!is_dir($targetDir) && !mkdir($targetDir, 0755, true)) {
-        $_SESSION['error'] = "Impossible de créer le dossier d'upload.";
-        header("location:view_product.php");
-        exit;
-    }
+            $uploadDir = 'image/image_produit/';
 
-    $fileExt = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
-    $allowedTypes = ['jpg', 'jpeg', 'png', 'gif' , 'avif'];
-    $maxSize = 30 * 1024 * 1024; // 10 Mo
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
 
-    // Validation du fichier
-    if ($_FILES['image']['size'] > $maxSize) {
-        $_SESSION['error'] = "L'image est trop grande (max 10 Mo)";
-        header("location:view_product.php?size");
-        exit;
-    }
+            $newFileName = 'produit_'.uniqid() . '.webp';
+            $destination = $uploadDir . $newFileName;
 
-    if (!in_array($fileExt, $allowedTypes)) {
-        $_SESSION['error'] = "Type d'image invalide. Seules les images JPG, JPEG, PNG et GIF sont autorisées.";
-        header("location:view_product.php");
-        exit;
-    }
+            // 🌟 Détecter le type MIME pour supporter toutes les extensions
+            $mimeType = mime_content_type($fileTmpPath);
 
-    // Générer un nom de fichier unique
-    $fileName = uniqid('produit_', true) . '.' . $fileExt;
-    $targetFile = $targetDir . $fileName;
+                
+                // Nom du fichier uploadé
+                $fichier = $_FILES['image']['name']; 
 
-    if (!move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
-        $_SESSION['error'] = "Erreur lors de l'enregistrement de l'image.";
-        header("location:view_product.php");
-        exit;
-    }
-}
+                // Extraire l'extension en minuscule
+                $extension = strtolower(pathinfo($fichier, PATHINFO_EXTENSION));
 
+                // Liste des extensions compatibles avec conversion WebP
+                $extensions_convertibles = ['jpg', 'jpeg', 'png', 'bmp', 'gif'];
+
+                if (!in_array($extension, $extensions_convertibles)) {
+                    $_SESSION['insert_product'] = 'invalid type Image';
+                     header("location: view_product.php");
+                     exit;
+                    // Exemple de suite : move_uploaded_file() + conversion
+                }
+
+
+           
+            switch ($mimeType) {
+                case 'image/jpeg':
+                    $sourceImage = imagecreatefromjpeg($fileTmpPath);
+                    break;
+                case 'image/png':
+                    $sourceImage = imagecreatefrompng($fileTmpPath);
+                    break;
+                case 'image/gif':
+                    $sourceImage = imagecreatefromgif($fileTmpPath);
+                    break;
+                case 'image/webp':
+                    $sourceImage = imagecreatefromwebp($fileTmpPath);
+                    break;
+                case 'image/bmp':
+                    $sourceImage = imagecreatefrombmp($fileTmpPath);
+                    break;
+                // default:
+                //     die("❌ Ce format n’est pas supporté : $mimeType");
+            }
+
+            
+
+            if ($sourceImage !== false) {
+                if (imagewebp($sourceImage, $destination, 80)) {
+                    imagedestroy($sourceImage);
+                    echo "✅ L’image a été convertie en WebP : $destination";
+                } else {
+                             $_SESSION['insert_admin'] = "❌ Erreur lors de la conversion en WebP.";
+                }
+            } else {
+                      $_SESSION['insert_admin'] =  "❌ Impossible d’ouvrir l’image.";
+            }
+        }
+        // end webp image 
+
+        if($fileName === null){
+            $_SESSION['insert_product'] = 'Image est requis';
+            header("location:view_product.php");
+            exit;
+        }
 
 // Insertion dans la BDD
-$stmt = $conn->prepare("INSERT INTO produits (nom, category_id, image) VALUES (?, ?, ?)");
+$stmt = $conn1->prepare("INSERT INTO produit (nom_produit, id_category,stock, image) VALUES (?, ?,?, ?)");
 if ($stmt === false) {
-    $_SESSION['error'] = "Erreur préparation de la requête : " . $conn->error;
+    $_SESSION['insert_product'] = "Erreur préparation de la requête : " . $conn->error;
     header("location:view_product.php");
     exit;
 }
 
-$stmt->bind_param("sis", $nom,$categoryName , $fileName);
+$stmt->bind_param("siss", $nom,$categoryId,$stock , $newFileName);
 
 if ($stmt->execute()) {
-    $_SESSION['success'] = "Nouvel produit ajouté avec succès";
+    $_SESSION['insert_product'] = "Nouvel produit ajouté avec succès";
 
-    $readId = $conn->prepare("SELECT id FROM produits WHERE nom = ?");
-    $readId->bind_param('s',$nom);
-    $readId->execute();
-    $res = $readId->get_result();
-
-    $row = $res->fetch_assoc();
-
-
-
-    $stmt = $conn->prepare("INSERT INTO quantite_produits (id_produit ,  quantite) VALUES (?, ?)");
-    $stmt->bind_param('ii',$row['id'] , $quantite);
-    if($stmt->execute()){
-        header("location:view_product.php?execute=success");
-    }
- 
 } else {
-    $_SESSION['error'] = "Erreur lors de l'ajout de roduit : " . $stmt->error;
+   $_SESSION['insert_product'] = "Erreur lors de l'ajout de produit : " . $stmt->error;
 }
 
 $stmt->close();
-$conn->close();
+$conn1->close();
 
     // Redirection
     header("Location:view_product.php");

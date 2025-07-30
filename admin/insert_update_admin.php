@@ -1,53 +1,125 @@
 <?php
 
+// fonction php mailler
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+require '../vendor/autoload.php';
+
+
 session_start();
 require_once '../include/conn_db.php';
+
+require_once '../include/config.php';
 
 // Vérifier si le formulaire est soumis
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Initialiser les variables et messages d'erreur
-    $errors = [];
-    $success = false;
-
+   $_SESSION['insert_update_admin'] = [];
     // Valider et nettoyer les entrées
    
     // Valider et nettoyer les entrées
-    $nom = strip_tags(trim($_POST['nom'] ?? ''));
-    $prenom = strip_tags(trim($_POST['prenom'] ?? ''));
-    $email = strip_tags(trim($_POST['email'] ?? ''));
-    $phone = trim($_POST['phone'] ?? '');
+   $nom =  strip_tags(trim($_POST['nom']));
+   $prenom = strip_tags(trim($_POST['prenom'] ?? ''));
+   $email = strip_tags(trim($_POST['email'] ?? ''));
+   $phone = trim($_POST['phone'] ?? '');
     $id = filter_input(INPUT_POST , 'id_num' , FILTER_SANITIZE_NUMBER_INT);
     
     // Validation des champs
-    if (empty($nom)) { header("location:view_admin.php?error=Le nom est requis"); exit; };
-    if (empty($prenom)) { header("location:view_admin.php?error=Le prénom est requis"); exit; };
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { header("location:view_admin.php?error=Email invalide"); exit; };
-    // if ($_FILES['image']['name'] == null ) { header("location:view_admin.php?error=image Error"); exit; };
-    if (!preg_match("/^[0-9]{10}$/", $phone)) { header("location:view_admin.php?error=Invalid_phone_number"); exit; };
-    
+    // Validation des champs
+    if (!preg_match('/^[a-zA-ZÀ-ÿ\-\']+$/', $nom)){
+         $_SESSION['insert_update_admin'] = [
+            'type' => 'error',
+            'msg' => 'Le nom est requis'
+         ];
+
+         header("location:view_admin.php");
+         exit;
+    };
+
+    if (!preg_match('/^[a-zA-ZÀ-ÿ\-\' ]+$/', $prenom)){
+          $_SESSION['insert_update_admin'] = [
+            'type' => 'error',
+            'msg' => 'Le prénom est requis'
+         ];
+        header("location:view_admin.php");
+        exit;
+    };
+
+    if (!preg_match("/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/" , $email)){
+          $_SESSION['insert_update_admin'] = [
+            'type' => 'error',
+            'msg' => 'Email invalide'
+         ];
+          header("location:view_admin.php");
+        exit;
+    };
+
+     if (!preg_match('/^(06|07|05)+[0-9]{8}$/', $phone)){
+
+          $_SESSION['insert_update_admin'] = [
+            'type' => 'error',
+            'msg' => 'invalid numero de telephone'
+         ];
+        header("location:view_admin.php");
+        exit;
+    };
+
     // Vérifier si l'admin email  existe déjà et n'est pas modifier 
-    $stmt = $conn->prepare("SELECT id FROM admin WHERE email = ?");
+    $stmt = $conn1->prepare("SELECT id_admin FROM admin WHERE email = ?");
     $stmt->bind_param('s', $email);
     $stmt->execute();
     
     if ($stmt->get_result()->num_rows > 0) {
         $email_exist = true;
     }else{
-        $sql = $conn->prepare("INSERT INTO admin(email) VALUES(?)");
-        $sql->bind_param('s', $email);
+        $sql = $conn1->prepare("UPDATE admin SET email = ? WHERE id_admin = ?");
+        $sql->bind_param('si', $email,$id);
         $sql->execute();
-        $email_exist = false;
+            // start send email
+    function generateVerificationCode($length = 8) {
+        return bin2hex(random_bytes($length / 2));
+    }
+
+    $passwordGenerateForEmployee = generateVerificationCode(8);
+    $mail = new PHPMailer(true);
+
+    try {
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'zouhairelhilaly00@gmail.com';
+        $mail->Password   = 'dfqe rueb tsuj pfzt';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+
+        $mail->setFrom('zouhairelhilaly00@gmail.com', 'Conseil povincial Youssofiy');
+        $mail->addAddress($email); // Utiliser l'email de l'employé
+
+        $mail->isHTML(true);
+        $mail->Subject = 'Votre mote de passe de vérification';
+        $mail->Body    = "<h1>Bonjour, $prenom $nom</h1><p>Votre code de mon application est : <b>$passwordGenerateForEmployee</b></p>";
+        $mail->AltBody = "Bonjour $prenom $nom,\nVotre code est : $passwordGenerateForEmployee";
+
+        $mail->send();
+        $_SESSION['email_send_avec_success_a_admin'] = true;
+    } catch (Exception $e) {
+        $_SESSION['email_send_avec_successa_admin'] = '';
+    }
+
+
     }
     
 
-    // if(isset($_FILES['image']['name'])){
     // Traitement de l'image
     $fileName = null;
 
     if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
         if ($_FILES['image']['error'] !== UPLOAD_ERR_OK) {
-            $_SESSION['error'] = "Erreur lors de l'upload de l'image.";
+            $_SESSION['insert_update_admin'] = [
+            'type' => 'error',
+            'msg' => 'Erreur lors de l\'upload de l\'image.'
+         ];
             header("location:view_admin.php");
             exit;
         }
@@ -56,42 +128,73 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Créer le dossier s'il n'existe pas
         if (!is_dir($targetDir) && !mkdir($targetDir, 0755, true)) {
-            $_SESSION['error'] = "Impossible de créer le dossier d'upload.";
+            $_SESSION['insert_update_admin'] = [
+            'type' => 'error',
+            'msg' => 'Impossible de créer le dossier d\'upload.'
+         ];
             header("location:view_admin.php");
             exit;
         }
 
         $fileExt = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
-        $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
-        $maxSize = 70 * 1024 * 1024; // 10 Mo
-
-        // Validation du fichier
-        if ($_FILES['image']['size'] > $maxSize) {
-            $_SESSION['error'] = "L'image est trop grande (max 10 Mo)";
-            header("location:view_admin.php?size=lot");
-            exit;
-        }
-
-        if (!in_array($fileExt, $allowedTypes)) {
-            $_SESSION['error'] = "Type d'image invalide. Seules les images JPG, JPEG, PNG et GIF sont autorisées.";
-            header("location:view_admin.php");
-            exit;
-        }
-
-        // Vérifier que c'est une vraie image
-        $check = getimagesize($_FILES['image']['tmp_name']);
-        if ($check === false) {
-            $_SESSION['error'] = "Le fichier n'est pas une image valide.";
-            header("location:view_admin.php");
-            exit;
-        }
-
+         $fileTmpPath = $_FILES['image']['tmp_name'];
+        $fileName = $_FILES['image']['name'];
+        
         // Générer un nom de fichier unique
-        $fileName = uniqid('admin_', true) . '.' . $fileExt;
+        $fileName = uniqid('admin_', true) . '.webp';
         $targetFile = $targetDir . $fileName;
 
+            $sourceImage = false;
+          // 🌟 Détecter le type MIME pour supporter toutes les extensions
+            $mimeType = mime_content_type($fileTmpPath);
+
+            switch ($mimeType) {
+                case 'image/jpeg':
+                    $sourceImage = imagecreatefromjpeg($fileTmpPath);
+                    break;
+                case 'image/png':
+                    $sourceImage = imagecreatefrompng($fileTmpPath);
+                    break;
+                case 'image/gif':
+                    $sourceImage = imagecreatefromgif($fileTmpPath);
+                    break;
+                case 'image/webp':
+                    $sourceImage = imagecreatefromwebp($fileTmpPath);
+                    break;
+                case 'image/bmp':
+                    $sourceImage = imagecreatefrombmp($fileTmpPath);
+                    break;
+                
+            }
+
+
+          if ($sourceImage !== false) {
+                if (imagewebp($sourceImage, $targetFile, 80)) {
+                    imagedestroy($sourceImage);
+                } else {
+                   $_SESSION['insert_update_admin'] = [
+                          'type' => 'error',
+                                'msg' => ' Erreur lors de la conversion en WebP. '
+                            ];
+                }
+            }else{
+                
+                $_SESSION['insert_update_admin'] = [
+                                'type' => 'error',
+                                'msg' => 'Impossible d’ouvrir l’image.'
+                            ];
+           header("location:view_admin.php");
+            exit;
+            }
+        
+        // end webp image 
+
+
         if (!move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
-            $_SESSION['error'] = "Erreur lors de l'enregistrement de l'image.";
+            $_SESSION['insert_update_admin'] = [
+                                'type' => 'error',
+                                'msg' => 'Erreur lors de l\'enregistrement de l\'image.'
+                            ];
             header("location:view_admin.php");
             exit;
         }
@@ -106,25 +209,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
     // Insertion dans la BDD
-    $stmt = $conn->prepare("UPDATE  admin SET nom = ? , prenom = ?, telephone = ?, image = ? WHERE id = ?");
+    $stmt = $conn1->prepare("UPDATE  admin SET nom = ? , prenom = ?, telephone = ?, image = ? WHERE id_admin = ?");
     if ($stmt === false) {
-        $_SESSION['error'] = "Erreur préparation de la requête : " . $conn->error;
+         $_SESSION['insert_update_admin'] = [
+                'type' => 'error',
+                  'msg' => 'Erreur préparation de la requête'
+         ];
         header("location:view_admin.php");
         exit;
     }
 
-    $stmt->bind_param("ssisi", $nom, $prenom,  $phone ,$fileName, $id);
+    $stmt->bind_param("ssssi", $nom, $prenom,  $phone ,$fileName, $id);
 
     if ($stmt->execute()) {
-        $_SESSION['success'] = "Nouvel administrateur ajouté avec succès";
+         $_SESSION['insert_update_admin'] = [
+                'type' => 'success',
+                  'msg' => 'Administrateur modifier avec succès'
+         ];
     } else {
-        $_SESSION['error'] = "Erreur lors de l'ajout de l'administrateur : " . $stmt->error;
+        $_SESSION['insert_update_admin'] = [
+                'type' => 'error',
+                  'msg' => 'Erreur lors de l\'ajout de l\'administrateur '
+         ];
     }
 
     $stmt->close();
-    $conn->close();
-
+    $conn1->close();
+}
     // Redirection
     header("Location:view_admin.php?UpdateAdmin=true");
     exit;
-}
+

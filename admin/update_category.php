@@ -5,7 +5,7 @@
 session_start();
 
 //end insert image  
-require_once '../include/conn_db.php';
+require_once '../include/config.php';
 
 require_once 'header.php';
 
@@ -14,8 +14,8 @@ include 'functions/chiffre.php';
 if($_SERVER['REQUEST_METHOD'] == 'GET'){
     $id =  decryptId( $_GET['id']) ;
     
-    $sql = "SELECT * FROM category WHERE id  = ?";
-    $stmt = $conn->prepare($sql);
+    $sql = "SELECT * FROM category WHERE id_category  = ?";
+    $stmt = $conn1->prepare($sql);
     $stmt->bind_param('i'  , $id);
     $stmt->execute();
 
@@ -70,15 +70,15 @@ require_once 'navbar.php';
 
 
  <!-- Category Modal -->
-        <div class="modal category-modal" id="categoryModal" style="display: block;">
+        <div class="modal category-modal modifier_category_form" id="categoryModal" style="display: block;">
             <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h3 id="modalTitle">Update Category</h3>
+            <span class="close-modale close_btn_form_category_update ">&times;</span>
+            <h3 id="modalTitle">Modifier Category</h3>
             <form action='insert_update_category.php' method="POST" id="categoryForm" enctype="multipart/form-data">
-                <input type="hidden" id="categoryId" name="category_id" value="<?php echo $row['id']?>">
+                <input type="hidden" id="categoryId" name="category_id" value="<?php echo $row['id_category']?>">
                 <div class="form-group">
                 <label for="categoryName">Category Name</label>
-                <input type="text" id="categoryName" name="category_name"  value="<?php echo $row['name']?>">
+                <input type="text" id="categoryName" name="category_name"  value="<?php echo $row['nom_category']?>">
                 </div>
                 <div class="form-group">
                 <label for="categoryDescription">Description</label>
@@ -97,18 +97,20 @@ require_once 'navbar.php';
 
         <style>
             .category-modal{
-                background-color: green;
                  width: 100%;
                  display:flex;
                  justify-content: center;
                  align-items: center;
             }
             .modal-content{
-                background-color: bisque;
-                width: fit-content;
-                position: fixed;
+
+                background-color: gainsboro;
+                border-radius: 20px;
+                width: 70%;                position: fixed;
                 top: 50%;
                 left: 50%;
-                transform: translate(-50% , -50%)
+                transform: translate(-50% , -50%);
             }
         </style>
+        
+<script src="category.js"></script>

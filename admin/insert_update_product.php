@@ -1,19 +1,12 @@
 <?php
 session_start();
-require_once '../include/conn_db.php';
+require_once '../include/config.php';
 require_once 'functions/chiffre.php';
 
 // Vérifier si le formulaire est soumis
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // Vérification CSRF
-    // if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-    //     $_SESSION['error_update_product'] = "Tentative de soumission non autorisée.";
-    //     header("location:view_product.php");
-    //     exit;
-    // }
-    // unset($_SESSION['csrf_token']); // détruire le token
-
+  
     // Valider et nettoyer les entrées
     $id = decryptId($_POST['productId']);
     $productImage = decryptId(trim($_POST['productImage']));
@@ -33,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Mise à jour du nom du produit
     if (!empty($nom)) {
-        $updateName = $conn->prepare("UPDATE produits SET nom = ? WHERE id = ?");
+        $updateName = $conn1->prepare("UPDATE produit SET nom_produit = ? WHERE id_produit = ?");
         $updateName->bind_param('si', $nom, $id);
         if (!$updateName->execute()) {
             $_SESSION['error_update_product'] = 'Erreur lors de la mise à jour du nom.';
@@ -44,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Mise à jour de la quantité
     if (!empty($quantite)) {
-        $update_qnt = $conn->prepare("UPDATE quantite_produits SET quantite = ? WHERE id_produit = ?");
+        $update_qnt = $conn1->prepare("UPDATE produit SET stock = ? WHERE id_produit = ?");
         $update_qnt->bind_param('ii', $quantite, $id);
         if (!$update_qnt->execute()) {
             $_SESSION['error_update_product'] = 'Erreur lors de la mise à jour de la quantité.';
@@ -55,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Mise à jour de la catégorie
     if (!empty($category_ID)) {
-        $updateCategory = $conn->prepare("UPDATE produits SET category_id = ? WHERE id = ?");
+        $updateCategory = $conn1->prepare("UPDATE produit SET id_category = ? WHERE id_produit = ?");
         $updateCategory->bind_param('ii', $category_ID, $id);
         if (!$updateCategory->execute()) {
             $_SESSION['error_update_product'] = 'Erreur lors de la mise à jour de la catégorie.';
@@ -72,47 +65,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        $targetDir = "uploads_produits/";
+        $targetDir = "image/image_produit/";
         if (!is_dir($targetDir) && !mkdir($targetDir, 0755, true)) {
             $_SESSION['error_update_product'] = "Impossible de créer le dossier d'upload.";
             header("location:view_product.php");
             exit;
         }
 
-        $fileExt = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
-        $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'avif'];
-        $maxSize = 30 * 1024 * 1024; // 30 Mo
+       
 
-        if ($_FILES['image']['size'] > $maxSize) {
-            $_SESSION['error_update_product'] = "L'image est trop grande (max 30 Mo)";
-            header("location:view_product.php");
-            exit;
-        }
+        $fileTmpPath = $_FILES['image']['tmp_name'];
+            $newFileName = 'produit_'.uniqid() . '.webp';
+            $destination =  $targetDir . $newFileName;
 
-        if (!in_array($fileExt, $allowedTypes)) {
-            $_SESSION['error_update_product'] = "Type d'image invalide.";
-            header("location:view_product.php");
-            exit;
-        }
+            // 🌟 Détecter le type MIME pour supporter toutes les extensions
+            $mimeType = mime_content_type($fileTmpPath);
 
-        $fileName = uniqid('produit_', true) . '.' . $fileExt;
-        $targetFile = $targetDir . $fileName;
+            switch ($mimeType) {
+                case 'image/jpeg':
+                    $sourceImage = imagecreatefromjpeg($fileTmpPath);
+                    break;
+                case 'image/png':
+                    $sourceImage = imagecreatefrompng($fileTmpPath);
+                    break;
+                case 'image/gif':
+                    $sourceImage = imagecreatefromgif($fileTmpPath);
+                    break;
+                case 'image/webp':
+                    $sourceImage = imagecreatefromwebp($fileTmpPath);
+                    break;
+                case 'image/bmp':
+                    $sourceImage = imagecreatefrombmp($fileTmpPath);
+                    break;
+                // default:
+                //     die("❌ Ce format n’est pas supporté : $mimeType");
+            }
 
-        if (!move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
-            $_SESSION['error_update_product'] = "Erreur lors de l'enregistrement de l'image.";
-            header("location:view_product.php");
-            exit;
-        }
+            
+
+            if ($sourceImage !== false) {
+                if (imagewebp($sourceImage, $destination, 80)) {
+                    imagedestroy($sourceImage);
+                    
+                } else {
+                            $_SESSION['error_update_product']  = "❌ Erreur lors de la conversion en WebP.";
+                }
+            } else {
+                      $_SESSION['error_update_product']  =  "❌ Impossible d’ouvrir l’image.";
+            }
+        
+        // end webp image 
 
         // Mise à jour du chemin de l'image
-        $updateImage = $conn->prepare("UPDATE produits SET image = ? WHERE id = ?");
-        $updateImage->bind_param('si', $fileName, $id);
+        $updateImage = $conn1->prepare("UPDATE produit SET image = ? WHERE id_produit = ?");
+        $updateImage->bind_param('si', $newFileName, $id);
         if (!$updateImage->execute()) {
             $_SESSION['error_update_product'] = "Erreur lors de la mise à jour de l'image.";
             header("location:view_product.php");
             exit;
         }
-    }
+    } //end image
 
     $_SESSION['error_update_product'] = 'Mise à jour réussie.';
     header("location:view_product.php");

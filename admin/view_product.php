@@ -1,91 +1,27 @@
+
 <?php 
 session_start();
 
 include "header.php";
 include "navbar.php";
-include "../include/conn_db.php";
+
+include "../include/config.php";
+
 include "functions/chiffre.php";
+
+if(isset($_SESSION['insert_product'])) {
+    if ($_SESSION['insert_product'] != '') {
+        $msg = $_SESSION['insert_product'];
+        echo "<script>alert('$msg');</script>";
+        unset($_SESSION['insert_product']);
+    }
+}
 ?>
 
-<link rel="stylesheet" href="style_product.css">
+<link rel="stylesheet" href="css/style_produit.css">
+
 <div class="product">
-    <!-- start style css search -->
-<style>
-    .navbar_product {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #f8f9fa; /* Couleur de fond claire */
-    padding: 15px 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    flex-wrap: wrap;
-}
-
-.add-product-btn {
-    background-color: #28a745; /* Vert */
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-@media (max-width: 676px){
-    .add-product-btn{
-        padding: 5px 10px;
-    }
-     .navbar_product{
-        text-align: center;
-        justify-content: center;
-     }
-}
-
-.add-product-btn:hover {
-    background-color: #218838; /* Vert foncé au hover */
-}
-
-.search-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-   
-}
-
-.search-bar input[type="text"] {
-    padding: 8px 12px;
-    font-size: 15px;
-    border: 1px solid #ced4da;
-    border-radius: 5px;
-    max-width: 150px;
-    transition: border-color 0.3s ease;
-}
-
-.search-bar input[type="text"]:focus {
-    border-color: #80bdff;
-    outline: none;
-}
-
-.search-bar button {
-    background-color: #007bff; /* Bleu */
-    color: white;
-    border: none;
-    padding: 8px 10px;
-    font-size: 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.search-bar button:hover {
-    background-color: #0069d9; /* Bleu foncé au hover */
-}
-
-</style>
-<!-- end style css search -->
-
+ 
 
     <!-- Contenu principal -->
     <div class="container">
@@ -96,53 +32,153 @@ include "functions/chiffre.php";
                 <button>Rechercher</button>
             </div>
         </div>
-
+        
         <div class="products-grid">
             <!-- start affichage product -->
-            <?php 
-            $stmt = $conn->prepare("SELECT * FROM produits ORDER BY id");
-            if($stmt->execute()){
-                $result = $stmt->get_result();
-                foreach($result as $row) {
-                    $quantite = 0; // Initialisation par défaut
+             <div class="container produit">
+                <h2 class="text-center mb-4">Liste des produits</h2>
+                
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Image</th>
+                                <th>Nom</th>
+                                <th>Category</th>
+                                <th>Stock</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                    <?php 
+                    $stmt = $conn1->prepare("SELECT * FROM produit ORDER BY id_produit");
+                    if($stmt->execute()){
+                        $result = $stmt->get_result();
+                        foreach($result as $row) {
+                        $category = $conn1->prepare("SELECT * FROM category WHERE id_category = ?");
+                        $category->bind_param("i", $row['id_category']);
+                            $category->execute();
+                            $cat_result = $category->get_result()->fetch_assoc();
+                            
+                    ?>
                     
-                    $qnt_stmt = $conn->prepare("SELECT quantite FROM quantite_produits WHERE id_produit = ? LIMIT 1");
-                    $qnt_stmt->bind_param('i', $row['id']);
-                    if($qnt_stmt->execute()){
-                        $res_qnt = $qnt_stmt->get_result();
-                        $qnt_data = $res_qnt->fetch_assoc();
-                        if($qnt_data && isset($qnt_data['quantite'])) {
-                            $quantite = (int)$qnt_data['quantite'];
+
+
+            
+                            <tr>
+                                <td data-label="ID"><?= $row['id_produit'] ?></td>
+                                <td data-label="Image">
+                                    <img src="image/image_produit/<?= $row['image']?>" alt="Produit 1" class="table-img">
+                                </td>
+                                <td data-label="Nom"><?= $row['nom_produit']?></td>
+                                <td><?php echo  $cat_result['nom_category']?></td>
+                                <td data-label="Stock"><?= $row['stock']?></td>
+                                <td data-label="Actions" class="action-btns btn_tableau">
+
+                                        <a href="update_product.php?id=<?= encryptId($row['id_produit'])?>" style="display: block;" class="btn btn-sm btn-warning action-btn modify-btn " ><i class="fas fa-edit"></i>Modifier</a>
+                                    
+                                        <a href="view_product.php?id=<?= encryptId($row['id_produit'])?>" style="display: block;" class="btn btn-sm btn-danger action-btn delete-btn" ><i class="fas fa-trash"></i>Supprimer</a> 
+                                
+                                </td>
+                            </tr>
+
+                    <?php 
                         }
+                        $stmt->close();
+                        $category->close();
+                    
+                    } else {
+                        echo "<p>Erreur lors de la récupération des produits</p>";
                     }
-                    $qnt_stmt->close();
-            ?>
-                <!-- Produit -->
-                <div class="product-card">
-                    <img src="uploads_produits/<?= htmlspecialchars($row['image']) ?>" alt="<?= htmlspecialchars($row['nom']) ?>" class="product-image">
-                    <div class="product-info">
-                        <h3 class="product-name"><?= htmlspecialchars($row['nom']) ?></h3>
-                        <p class="product-price">Quantité: <?= $quantite ?></p>
-                        <div class="product-actions">
-                            <a class="action-btn update-btn update-btn-product" 
-                               href="update_product.php?id=<?= encryptId($row['id']) ?>" >Modifier</a>                            
-                        <div class="action-btn delete-btn" onclick="show_delete('<?= encryptId($row['id']) ; ?>')" >Supprimer</div>
-                        </div>
-                    </div>
+                    ?>  
+                            
+            
+                        </tbody>
+                    </table>
                 </div>
-            <?php 
-                }
-                $stmt->close();
-            } else {
-                echo "<p>Erreur lors de la récupération des produits</p>";
-            }
-            ?>  
+            </div>
+
         </div>
     </div>
 
+
+<!-- start popup ************************************************************************* -->
+
+   
+
+        <?php 
+
+        //  satrt affiche popup delete category 
+        if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['id'])) {
+            $id = (int) decryptId($_GET['id']);
+            ?>
+            <script>
+                Swal.fire({
+                    title: 'Confirmez la suppression',
+                    text: "Cette action est irréversible !",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Oui, supprimer !',
+                    cancelButtonText: 'Annuler',
+                    backdrop: 'rgba(0,0,0,0.7)',
+                    customClass: {
+                        popup: 'animated fadeIn faster' // Animation (optionnelle)
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = 'delete_product.php?id=<?= urlencode($_GET['id']) ?>';
+                    } else {
+                        window.location.href = 'view_product.php';
+                    }
+                });
+            </script>
+            
+        <!--  satrt affiche popup delete category  -->
+
+            <?php
+            exit();
+        }
+        
+// <!-- end popup ************************************************************************* -->
+
+         
+ 
+  // start affiche delted succcessfully
+
+if(isset($_SESSION['delete_produit'] )){
+  if($_SESSION['delete_produit'] != ''){
+    ?>
+     <script>
+        Swal.fire({
+            title: 'Succès !',
+            text: 'La suppression a été effectuée.',
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK',
+            backdrop: 'rgba(0,0,0,0.4)'
+        }).then(() => {
+            // Optionnel : Recharger la page pour actualiser les données
+            window.location.href = 'view_product.php';
+        });
+    </script>
+<?php
+    unset($_SESSION['delete_produit'] );
+  }
+}
+?>
+<!-- //  end affiche popup delete category  -->
+
+
+
+
+
     <!-- start form ajouter product ************************************ -->
 
-    <form action="insert_product.php" class="form_add_product" method="POST" enctype="multipart/form-data" id="form">
+    <form action="insert_product.php"  class="form_add_product" method="POST" enctype="multipart/form-data" id="form">
         <div class="close_btn_form_product">&times</div>
         <div class="form-group">
             <label for="productName">Nom du produit</label>
@@ -159,16 +195,18 @@ include "functions/chiffre.php";
             <select id="productCategory" name="productCategory" class="form-control" required>
                 <option value="" disabled selected>Sélectionnez une catégorie</option>
                 <?php 
-                $sql = $conn->prepare("SELECT * FROM category ORDER BY id");
+                $sql = $conn1->prepare("SELECT * FROM category ORDER BY id_category");
                 $sql->execute();
                 $res = $sql->get_result();
                 while($cat = $res->fetch_assoc()) {
                 ?>
-                    <option value="<?= $cat['id'] ?>"><?= htmlspecialchars($cat['name']); ?></option>
+                    <option value="<?= $cat['id_category'] ?>"><?= htmlspecialchars($cat['nom_category']); ?></option>
                 <?php }; ?>
             </select>
         </div>
 
+
+        
         <div class="form-group">
             <label for="productImage" class="Image_design">Choisir une image</label>
             <input type="file" id="productImage" name="image" class="form-control" style="display: none" required>
@@ -176,7 +214,6 @@ include "functions/chiffre.php";
 
         <button type="submit" class="submit-btn">Ajouter le produit</button>
     </form>
-
     <!-- end ajouter product *************************************************** -->
 
 
@@ -193,7 +230,7 @@ include "functions/chiffre.php";
 
  <?php 
 
-// start 
+       // start 
       if(isset($_SESSION['error_update_product'])){
         if($_SESSION['error_update_product'] != ''){
             $var = $_SESSION['error_update_product'];
@@ -203,7 +240,7 @@ include "functions/chiffre.php";
         // end 
       }
  
-     if(isset($_SESSION['product_data'])){
+     if(isset($_SESSION['product_data'])){ //requpure data en update 
         if($_SESSION['product_data'] == 1){
             unset($_SESSION['product_data'] ); 
      ?>
@@ -233,7 +270,7 @@ include "functions/chiffre.php";
             <select id="updateProductCategory" name="productCategory" class="form-control_update" required>
                 <!-- <option value="" disabled selected>Sélectionnez une catégorie</option> -->
                 <?php 
-                $sql = $conn->prepare("SELECT * from category ORDER BY id");
+                $sql = $conn1->prepare("SELECT * from category ORDER BY id_category");
                 $sql->execute();
                 $res = $sql->get_result();
                 while($cat = $res->fetch_assoc()) {
@@ -242,7 +279,7 @@ include "functions/chiffre.php";
                         $selected = 'selected';
                     }
                 ?>
-                    <option value="<?= $cat['id'] ?>" <?= $selected ?>> <?=  htmlspecialchars($cat['name']); ?></option>
+                    <option value="<?= $cat['id_category'] ?>" <?= $selected ?>> <?=  htmlspecialchars($cat['nom_category']); ?></option>
                 <?php }; ?>
             </select>
         </div>
@@ -281,7 +318,7 @@ if ((form_update_product.style).display == 'block'){
     <?php       
              }
              }
-                
+            $conn1->close();    
           ?>
     <!-- end update product -->
 
@@ -290,4 +327,8 @@ if ((form_update_product.style).display == 'block'){
     
 </div>
 
-<script src="product.js"></script>
+<script src="js/product.js"></script>
+
+
+
+

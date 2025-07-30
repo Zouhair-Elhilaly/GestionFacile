@@ -3,12 +3,13 @@
 
 session_start();
 
-require_once '../include/conn_db.php';
+require_once '../include/config.php';
+require_once 'functions/chiffre.php';
 
 if($_SERVER['REQUEST_METHOD'] == 'GET'){
-    $id = $_GET['id'] ;
+    $id = decryptId($_GET['id']) ;
 
-    $stmt = $conn->prepare("DELETE FROM admin WHERE id = ? ;");
+    $stmt = $conn1->prepare("DELETE FROM admin WHERE id_admin = ? ;");
     $stmt->bind_param('s' , $id);
 
     if($stmt->execute()){

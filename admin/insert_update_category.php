@@ -1,31 +1,30 @@
 <?php
 
 session_start();
-require_once '../include/conn_db.php';
+require_once '../include/config.php';
 
 // Vérifier si le formulaire est soumis
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Initialiser les variables et messages d'erreur
-    $errors = [];
-    $success = false;
+    $_SESSION['insert_category'] = '';
 
     // Valider et nettoyer les entrées
     $category_id = filter_input(INPUT_POST ,'category_id' ,FILTER_SANITIZE_NUMBER_INT);
     $nom = strip_tags(trim($_POST['category_name'] ?? ''));
     $image_name = filter_input(INPUT_POST , 'image_name' ,  FILTER_SANITIZE_STRING);
-    $description = filter_input(INPUT_POST , 'category_description' , FILTER_SANITIZE_STRING);
+    $description = strip_tags(trim($_POST['category_description'] ?? ''));
 
    
     
     // Validation des champs
     if (empty($nom)) { 
-        $_SESSION['error_category'] = 'invalid nom category';
+        $_SESSION['insert_category'] = 'invalid nom category';
         header("location:view_category.php");
          exit; 
         };
     if (empty($description)){
-         $_SESSION['error_category'] = 'invalid description category';
+        $_SESSION['insert_category'] = 'invalid description category';
          header("location:view_category.php");
           exit;
       };
@@ -33,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     
     // Vérifier si l'employee email  existe déjà et n'est pas modifier 
-    $stmt = $conn->prepare("SELECT id FROM category WHERE id = ?");
+    $stmt = $conn1->prepare("SELECT id_category FROM category WHERE id_category = ?");
     $stmt->bind_param('i', $category_id);
     $stmt->execute();
     
@@ -54,62 +53,88 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit;
         }
 
-        $targetDir = "uploads_category/";
+        $targetDir = "image/image_category/";
 
         // Créer le dossier s'il n'existe pas
         if (!is_dir($targetDir) && !mkdir($targetDir, 0755, true)) {
-              $_SESSION['error_category'] =  "Impossible de créer le dossier d'upload.";
+              $_SESSION['insert_category'] =  "Impossible de créer le dossier d'upload.";
             header("location:view_category.php");
             exit;
         }
 
-        $fileExt = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
-        $allowedTypes = ['jpg', 'jpeg', 'png', 'gif' , 'avif'];
-        $maxSize = 70 * 1024 * 1024; // 10 Mo
+        
 
-        // Validation du fichier
-        if ($_FILES['image']['size'] > $maxSize) {
-              $_SESSION['error_category'] = "L'image est trop grande (max 10 Mo)";
-              header("location:view_category.php?size=lot");
-            exit;
-        }
+        
 
-        if (!in_array($fileExt, $allowedTypes)) {
-              $_SESSION['error_category'] =  "Type d'image invalide. Seules les images JPG, JPEG, PNG et GIF sont autorisées.";
-            header("location:view_category.php");
-            exit;
-        }
 
         // Vérifier que c'est une vraie image
         $check = getimagesize($_FILES['image']['tmp_name']);
         if ($check === false) {
-              $_SESSION['error_category'] =  "Le fichier n'est pas une image valide.";
+              $_SESSION['insert_category']  =  "Le fichier n'est pas une image valide.";
             header("location:view_category.php");
             exit;
         }
 
         // Générer un nom de fichier unique
-        $fileName = uniqid('category_', true) . '.' . $fileExt;
-        $targetFile = $targetDir . $fileName;
+        $fileName = uniqid('category_', true) . '.webp';
+        $destination = $targetDir . $fileName;
+        $fileTmpPath = $_FILES['image']['tmp_name'];
 
-        if (!move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
-              $_SESSION['error_category'] = "Erreur lors de l'enregistrement de l'image.";
-            header("location:view_category.php");
-            exit;
+           
+
+            // 🌟 Détecter le type MIME pour supporter toutes les extensions
+            $mimeType = mime_content_type($fileTmpPath);
+
+            switch ($mimeType) {
+                case 'image/jpeg':
+                    $sourceImage = imagecreatefromjpeg($fileTmpPath);
+                    break;
+                case 'image/png':
+                    $sourceImage = imagecreatefrompng($fileTmpPath);
+                    break;
+                case 'image/gif':
+                    $sourceImage = imagecreatefromgif($fileTmpPath);
+                    break;
+                case 'image/webp':
+                    $sourceImage = imagecreatefromwebp($fileTmpPath);
+                    break;
+                case 'image/bmp':
+                    $sourceImage = imagecreatefrombmp($fileTmpPath);
+                    break;
+                // default:
+                //     die("❌ Ce format n’est pas supporté : $mimeType");
+            }
+
+            
+
+            if ($sourceImage !== false) {
+                if (imagewebp($sourceImage, $destination, 80)) {
+                    imagedestroy($sourceImage);
+                } else {
+                             $_SESSION['insert_category']  = "❌ Erreur lors de la conversion en WebP.";
+                }
+            } else {
+                             $_SESSION['insert_category']  =  "❌ Impossible d’ouvrir l’image.";
+            }
         }
+        // end webp image 
+    }else{
+        // Si aucune image n'est fournie, on peut choisir de ne pas mettre à jour le champ image
+        $fileName = $image_name; // Utiliser l'image existante si aucune nouvelle image n'est fournie
+    }
+        // if (!move_uploaded_file($_FILES['image']['tmp_name'], $targetDir)) {
+        //       $_SESSION['insert_category']  = "Erreur lors de l'enregistrement de l'image.";
+        //     header("location:view_category.php");
+        //     exit;
+        // }
     
   
 // end isset file name
-    }
-
-    }else{
-        $fileName  = $image_name;
-    }
 
     // Insertion dans la BDD
-    $stmt = $conn->prepare("UPDATE category SET name = ? ,description = ? ,image = ? WHERE id = ?");
+    $stmt = $conn1->prepare("UPDATE category SET nom_category = ? ,description = ? ,image = ? WHERE id_category = ?");
     if ($stmt === false) {
-        $_SESSION['error_category'] = "Erreur préparation de la requête : " . $conn->error;
+        $_SESSION['insert_category'] = "Erreur préparation de la requête : " . $conn->error;
         header("location:view_category.php");
         exit;
     }
@@ -117,13 +142,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt->bind_param("sssi", $nom, $description , $fileName , $category_id);
 
     if ($stmt->execute()) {
-        $_SESSION['success_category'] = "Nouvel administrateur ajouté avec succès";
+        $_SESSION['insert_category'] = "Modifier category avec succès";
     } else {
-        $_SESSION['error_category'] = "Erreur lors de l'ajout de l'administrateur : " . $stmt->error;
+        $_SESSION['insert_category'] = "Erreur lors de modification category : ";
     }
 
     $stmt->close();
-    $conn->close();
+    $conn1->close();
 
     // Redirection
     header("Location:view_category.php?Insert=true");

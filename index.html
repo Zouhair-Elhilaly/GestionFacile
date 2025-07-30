@@ -1,43 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <title>Test PDF</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.8.0/html2pdf.bundle.min.js"></script>
 </head>
 <body>
-    
+  <div id="main">
+    <h1>Contenu PDF</h1>
+    <p>Ceci sera converti en PDF.</p>
+  </div>
 
+  <button id="generate">Générer PDF</button>
 
-
-    
-        <input type="text" name="username" id="test">
-     
-
-    <img src="" alt="">
-    <script>
-        let img = document.querySelector("img");
-
-        test.addEventListener('keyup',() => {
-
-          if(test.value != ''){
-            fetch('http://localhost/projet_stage/laravel.php?search='+test.value).then(res => res.json()).then(data => {
-        console.log(data)
-        if(data != ''){
-          img.src = 'admin/uploads_product/'+data[0][3];
-        }
-      }).catch(error =>{ 
-        console.log("error");
-      })
-
-    };
-
-        });
-
-       
-    
-
-
-    </script>
+  <script>
+    document.getElementById("generate").addEventListener("click", () => {
+      let main = document.getElementById("main");
+      if (main) {
+        html2pdf().from(main).save();
+      } else {
+        alert("Erreur : élément à imprimer non trouvé !");
+      }
+    });
+  </script>
 </body>
 </html>
