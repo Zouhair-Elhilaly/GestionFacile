@@ -1,0 +1,287 @@
+     <?php
+if (!isset($_SERVER['HTTP_REFERER']) || strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) === false) {
+    header("HTTP/1.1 403 Forbidden");
+    header("location:../error.php");
+    exit();
+}
+
+// Sinon, afficher le CSS normalement
+header("Content-Type: text/css");
+?>
+
+   
+
+
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header Styles */
+header {
+    background-color: #2c3e50;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo_and_close {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo_admin {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logo_admin img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #fff;
+}
+
+.title_dashboard {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.close_tag button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background 0.3s;
+}
+
+.close_tag button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.left_admin_header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.mode {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.mode:hover {
+    background-color: #2980b9;
+}
+
+#notification {
+    position: relative;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.menu_notification {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: white;
+    color: #333;
+    min-width: 200px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    z-index: 10;
+}
+
+.menu_notification li {
+    padding: 0.5rem 1rem;
+    list-style: none;
+    border-bottom: 1px solid #eee;
+}
+
+.menu_notification li:hover {
+    background-color: #f5f5f5;
+}
+
+.left_admin_header img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    object-fit: cover;
+}
+
+/* Main Container */
+.container_admin {
+    display: flex;
+    flex: 1;
+}
+
+/* Navbar Styles */
+.navbar {
+    background-color: #34495e;
+    color: white;
+    width: 250px;
+    min-height: calc(100vh - 70px);
+    padding: 1rem 0;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 90;
+}
+
+.navbar.collapsed {
+    width: 70px;
+}
+
+.navbar.collapsed .navbar a span {
+    display: none;
+}
+
+.navbar a {
+    display: flex;
+    align-items: center;
+    color: white;
+    text-decoration: none;
+    padding: 0.8rem 1.5rem;
+    margin: 0.2rem 0;
+    transition: all 0.3s;
+    position: relative;
+    gap: 1rem;
+}
+
+.navbar a::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    background-color: #3498db;
+    transform: scaleY(0);
+    transition: transform 0.2s, width 0.4s cubic-bezier(1, 0, 0, 1) 0.2s;
+}
+
+.navbar a:hover::before {
+    transform: scaleY(1);
+    width: 100%;
+}
+
+.navbar a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar a i {
+    font-size: 1.2rem;
+    min-width: 30px;
+    text-align: center;
+}
+
+/* Main Content Area */
+.main-content {
+    flex: 1;
+    padding: 2rem;
+    background-color: #f5f5f5;
+    transition: margin-left 0.3s;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+    .navbar {
+        width: 70px;
+    }
+    
+    .navbar a span {
+        display: none;
+    }
+    
+    .navbar:hover {
+        width: 250px;
+    }
+    
+    .navbar:hover a span {
+        display: inline;
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        padding: 1rem;
+    }
+    
+    .navbar {
+        position: fixed;
+        left: -100%;
+        top: 70px;
+        height: calc(100vh - 70px);
+        width: 250px;
+        transition: all 0.3s;
+    }
+    
+    .navbar.active {
+        left: 0;
+    }
+    
+    .main-content {
+        margin-left: 0;
+        padding: 1rem;
+    }
+    
+    .close_tag {
+        display: block;
+    }
+}
+
+/* Dark Mode */
+.dark-mode {
+    background-color: #1a1a1a;
+    color: #f5f5f5;
+}
+
+.dark-mode .main-content {
+    background-color: #1a1a1a;
+    color: #f5f5f5;
+}
+
+.dark-mode .navbar {
+    background-color: #121212;
+}
+
+.dark-mode header {
+    background-color: #121212;
+}
+
+/* Add icons to navbar items */
+.accueil::before { content: "\f015"; font-family: "Font Awesome 5 Free"; font-weight: 900; }
+.produit::before { content: "\f1b2"; font-family: "Font Awesome 5 Free"; font-weight: 900; }
+.category::before { content: "\f02b"; font-family: "Font Awesome 5 Free"; font-weight: 900; }
+.admin::before { content: "\f007"; font-family: "Font Awesome 5 Free"; font-weight: 900; }
+.employee::before { content: "\f0c0"; font-family: "Font Awesome 5 Free"; font-weight: 900; }
+.Reservation::before { content: "\f07a"; font-family: "Font Awesome 5 Free"; font-weight: 900; }
+.Rapport::before { content: "\f200"; font-family: "Font Awesome 5 Free"; font-weight: 900; }
+.deconnection::before { content: "\f2f5"; font-family: "Font Awesome 5 Free"; font-weight: 900; }
+.parametre::before { content: "\f013"; font-family: "Font Awesome 5 Free"; font-weight: 900; }

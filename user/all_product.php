@@ -1,4 +1,6 @@
-<?php include "header.php";
+<?php
+define('SECURE_ACCESS', true);
+include "header.php";
 
 
 // check ajouter commande 
@@ -11,7 +13,10 @@ if(isset($_SESSION['insert_commande'])){
     icon: '$type',
     title: 'Opération réussie !',
     text: '$msg',
-    timer: 3000 
+    timer: 3000 ,
+    customClass:{
+    popup: localStorage.getItem('mode') === 'dark' ? 'swal2-dark' : ''
+    }
 });</script>";
         unset($_SESSION['insert_commande']);
     }
@@ -26,7 +31,7 @@ if(isset($_SESSION['insert_commande'])){
         <input type="search" name="search" id="search" placeholder="Search category ...">
   </div>  
 <!-- <input type="hidden" name="" id="email_employe" value="<?= encryptId($email) ?>"> -->
-<div class="category-card" >
+<div class="category-card" id="bodyCard" >
     
     <!-- start affichage card d'un category  -->
             <?php 
@@ -46,16 +51,16 @@ if(isset($_SESSION['insert_commande'])){
                         $idP = $row['id_produit'];
 
                         echo "
-                <div class='card_pies card_pies_origin'>
+                <div class='card_pies card_pies_origin card_search'>
                     <div class='category-image category-icon'>
-                        <img src='../admin/image/image_produit/$row[image]' alt='Category Image' class='category-img'>
+                        <img src='../admin/protection_image/image_produit.php?img=$row[image]' alt='Category Image' class='category-img'>
                     </div>
                     <div class='text'>
-                        <h3>$row[nom_produit]</h3>
+                        <h3 class='name' >$row[nom_produit]</h3>
                         
                     </div>
-                    <div class='products-count'><span class='result_product'>$row[stock]</span> products</div>
-                    <a href='insert/insert_product.php?id=$idP&email=$em&page=produit' class='btn btn-success' >Ajouter</a>
+                    <div class='products-count'><span class='result_product'>$row[stock]</span> produits</div>
+                    <a href='insert/insert_product.php?token=$token&id=$idP&email=$em&page=produit' class='btn btn-success' >Ajouter</a>
                 </div>
             ";
         }
@@ -67,7 +72,7 @@ if(isset($_SESSION['insert_commande'])){
 
             ?>
      <!-- start affichage card d'un category  -->
-
+<input type="hidden" name="" id="token" value="<?= $token ?>">
 
 </div> <!-- end category card -->
 <?php
@@ -77,10 +82,66 @@ $res = $stmt->get_result()->fetch_assoc();
 if($res){
     if($res['counter'] > 4){
         echo '
-        <button class="btn btn-primary voir_plus">Voir plus...</button>
+        <button style="background-color: var(--titleColor);  color: var(--white)" class="btn  voir_plus">Voir plus...</button>
         ';
     }
 }
 ?>
 </div> <!-- end content --> 
+
+<!-- / ===== SYSTÈME DE RECHERCHE SIMPLE ===== -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const searchInput = document.getElementById("search");
+  const tableBody = document.getElementById("bodyCard");
+
+
+  const noResultMsg = document.createElement("div");
+  noResultMsg.textContent = "Aucun résultat trouvé";
+  noResultMsg.style.cssText = "display:none; text-align:center; margin-top:20px; font-weight:bold; color:red;";
+  tableBody.append( noResultMsg);
+
+  
+  searchInput.addEventListener("input", function () {
+    const searchTerm = this.value.toLowerCase().trim();
+    const rows = tableBody.querySelectorAll(".card_search");
+
+    let found = false;
+
+    rows.forEach((row) => {
+      const serviceName = row.querySelector(".name");
+
+      if (serviceName) {
+        const text = serviceName.textContent.toLowerCase();
+        if (text.includes(searchTerm) || searchTerm === "") {
+          row.style.display = "";
+          found = true;
+        } else {
+          row.style.display = "none";
+        }
+      }
+    });
+
+    
+    noResultMsg.style.display = found ? "none" : "block";
+  });
+
+  
+  rows.forEach((row) => {
+    row.addEventListener('mouseover', () => {
+      row.style.transition = "transform 0.3s ease, box-shadow 0.3s ease";
+      row.style.transform = 'translateY(-10px)';
+      row.style.boxShadow = "0 10px 20px rgba(0,0,0,0.2)";
+    });
+
+    row.addEventListener('mouseout', () => {
+      row.style.transform = 'translateY(0)';
+      row.style.boxShadow = "0 4px 10px rgba(0,0,0,0.1)";
+    });
+  });
+});
+</script>
+
+<!-- end search -->
 <?php include "footer.php" ?>

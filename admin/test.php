@@ -1,20 +1,20 @@
 <?php 
 
-include "../include/conn_db.php";
+include "../include/config.php";
+include "../admin/functions/chiffre.php";
+//   $stmt = $conn11->prepare("SELECT name from category WHERE id = ?");
 
-if($_SERVER['REQUEST_METHOD'] == 'POST'){
-
-    $stmt = $conn->prepare("SELECT name from category WHERE id = ?");
-
- echo    $categoryName = filter_input(INPUT_POST , 'productCategory' , FILTER_SANITIZE_STRING);
-
-    $stmt = $conn->prepare("SELECT name from category WHERE id = ?");
-    $stmt->bind_param("i", $categoryName);
+//  echo    $categoryName = filter_input(INPUT_POST , 'productCategory' , FILTER_SANITIZE_STRING);
+$d = 36;
+    $stmt = $conn1->prepare("SELECT * from admin WHERE id_admin = ?");
+    $stmt->bind_param("i", $d);
     $stmt->execute();
     $res = $stmt->get_result();
 
     $row = $res->fetch_assoc();
-    echo $row['name'];
-}
+    // echo $row['mot_de_passe'];
+    $p =decryptId($row['mot_de_passe']);
+    echo $p;
+//    var_dump(password_verify($p, $row['id_admin']))
 
 ?>

@@ -1,0 +1,9 @@
+<FilesMatch "\.css$">
+    Order deny,allow
+    Deny from all
+    SetEnvIf Referer "^http://localhost/" allow_ref
+    Allow from env=allow_ref
+</FilesMatch>
+
+# Pour bloquer l'accès au dossier CSS lui-même
+Options -Indexes

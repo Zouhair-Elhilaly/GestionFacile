@@ -1,4 +1,4 @@
-[⚠️ Suspicious Content] <?php
+<?php
 // Code minimal pour afficher PDF en lecture seule
 
 if (!isset($_GET['nom_document'])) {

@@ -59,4 +59,34 @@ document.addEventListener("DOMContentLoaded", function () {
   closeBtnFormProduct.addEventListener("click", () => {
     formAddProduct.style.display = "none";
   });
+
+  // ===== SYSTÈME DE RECHERCHE SIMPLE =====
+
+  const searchInput = document.getElementById("search");
+  const tableBody = document.getElementById("serviceTableBody");
+
+  searchInput.addEventListener("input", function () {
+    const searchTerm = this.value.toLowerCase().trim();
+    const rows = tableBody.querySelectorAll("tr");
+   
+    
+    rows.forEach((row) => {
+      const serviceName = row.querySelector(".service-name");
+      if (serviceName) {
+         console.log("hello");
+        const text = serviceName.textContent.toLowerCase();
+        if (text.includes(searchTerm) || searchTerm === "") {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      }
+    });
+  });
+  // end search
 });
+
+
+
+
+

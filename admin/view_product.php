@@ -1,45 +1,52 @@
 
 <?php 
-session_start();
-
+//  session_start();
+define('SECURE_ACCESS', true);
 include "header.php";
 include "navbar.php";
 
-include "../include/config.php";
+// include "functions/chiffre.php";
 
-include "functions/chiffre.php";
-
-if(isset($_SESSION['insert_product'])) {
-    if ($_SESSION['insert_product'] != '') {
-        $msg = $_SESSION['insert_product'];
-        echo "<script>alert('$msg');</script>";
+// insert_product 
+if(isset($_SESSION['insert_product'])){
+    if(!empty($_SESSION['insert_product'])){
+        $text = $_SESSION['insert_product']['msg'];
+        $type = $_SESSION['insert_product']['type'];
+        echo "<script>
+        Swal.fire({
+    icon: '$type',
+    title: 'Opération réussie !',
+    text: '$text',
+    timer: 3000 
+});</script>";
         unset($_SESSION['insert_product']);
     }
 }
+// end insert_pdf
+
 ?>
 
-<link rel="stylesheet" href="css/style_produit.css">
+<link rel="stylesheet" href="css/style_produit.php">
 
 <div class="product">
  
 
     <!-- Contenu principal -->
-    <div class="container">
+  
         <div class="navbar_product">
             <button id="add-product-btn" class="add-product-btn">+ Ajouter un produit</button>
             <div class="search-bar">
-                <input type="text" placeholder="Rechercher un produit...">
-                <button>Rechercher</button>
+                <input id="search" type="search" placeholder="Rechercher un produit...">
             </div>
         </div>
         
         <div class="products-grid">
             <!-- start affichage product -->
              <div class="container produit">
-                <h2 class="text-center mb-4">Liste des produits</h2>
+                <h2 style="color: var(--titleColor); padding: 10px 0;" class="text-center mb-4">Liste des produits</h2>
                 
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover">
+                    <table class="table table-striped table-hover ">
                         <thead class="table-dark">
                             <tr>
                                 <th>ID</th>
@@ -50,7 +57,7 @@ if(isset($_SESSION['insert_product'])) {
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="serviceTableBody">
 
                     <?php 
                     $stmt = $conn1->prepare("SELECT * FROM produit ORDER BY id_produit");
@@ -70,14 +77,14 @@ if(isset($_SESSION['insert_product'])) {
                             <tr>
                                 <td data-label="ID"><?= $row['id_produit'] ?></td>
                                 <td data-label="Image">
-                                    <img src="image/image_produit/<?= $row['image']?>" alt="Produit 1" class="table-img">
+                                    <img src="protection_image/image_produit.php?img=<?= $row['image']?>" alt="Produit 1" class="table-img">
                                 </td>
-                                <td data-label="Nom"><?= $row['nom_produit']?></td>
-                                <td><?php echo  $cat_result['nom_category']?></td>
+                                <td class='service-name' data-label="Nom"><?= $row['nom_produit']?></td>
+                                <td data-label="Categorie"><?php echo  $cat_result['nom_category']?></td>
                                 <td data-label="Stock"><?= $row['stock']?></td>
                                 <td data-label="Actions" class="action-btns btn_tableau">
 
-                                        <a href="update_product.php?id=<?= encryptId($row['id_produit'])?>" style="display: block;" class="btn btn-sm btn-warning action-btn modify-btn " ><i class="fas fa-edit"></i>Modifier</a>
+                                        <a href="update_product.php?id=<?= encryptId($row['id_produit'])?>&token=<?= $token?>" style="display: block;" class="btn btn-sm btn-warning action-btn modify-btn " ><i class="fas fa-edit"></i>Modifier</a>
                                     
                                         <a href="view_product.php?id=<?= encryptId($row['id_produit'])?>" style="display: block;" class="btn btn-sm btn-danger action-btn delete-btn" ><i class="fas fa-trash"></i>Supprimer</a> 
                                 
@@ -85,9 +92,10 @@ if(isset($_SESSION['insert_product'])) {
                             </tr>
 
                     <?php 
+                        $category->close();
                         }
                         $stmt->close();
-                        $category->close();
+                       
                     
                     } else {
                         echo "<p>Erreur lors de la récupération des produits</p>";
@@ -113,11 +121,25 @@ if(isset($_SESSION['insert_product'])) {
         //  satrt affiche popup delete category 
         if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['id'])) {
             $id = (int) decryptId($_GET['id']);
+            // check id il exist dans commande 
+
+
+                $checkProduitExsistEnDetails = $conn1->prepare("SELECT * FROM détailler WHERE id_produit = ?");
+                $checkProduitExsistEnDetails->bind_param("i",$id);
+                $checkProduitExsistEnDetails->execute();
+                $resultCheckProduitExsistEnDetails =$checkProduitExsistEnDetails->get_result();
+
+           
+            $msg = 'Cette action est irréversible !';
+                if($resultCheckProduitExsistEnDetails->num_rows > 0){
+                     $msg = 'Attention! Cela supprimera aussi les commandes liées';
+                }
+                $checkProduitExsistEnDetails->close();
             ?>
             <script>
                 Swal.fire({
                     title: 'Confirmez la suppression',
-                    text: "Cette action est irréversible !",
+                    text: "<?php echo $msg ?>",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
@@ -130,7 +152,7 @@ if(isset($_SESSION['insert_product'])) {
                     }
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = 'delete_product.php?id=<?= urlencode($_GET['id']) ?>';
+                        window.location.href = 'delete/delete_product.php?id=<?= urlencode($_GET['id']) ?>&token=<?= $token ?>';
                     } else {
                         window.location.href = 'view_product.php';
                     }
@@ -151,12 +173,17 @@ if(isset($_SESSION['insert_product'])) {
 
 if(isset($_SESSION['delete_produit'] )){
   if($_SESSION['delete_produit'] != ''){
+
+    $type = $_SESSION['delete_produit']['type'];
+    $msg = $_SESSION['delete_produit']['msg'];
+    $title = $_SESSION['delete_produit']['titre'];
+
     ?>
      <script>
         Swal.fire({
-            title: 'Succès !',
-            text: 'La suppression a été effectuée.',
-            icon: 'success',
+            title: '<?php echo  $title?>',
+            text: '<?php echo $msg ?>',
+            icon: '<?php echo $type?>',
             confirmButtonColor: '#3085d6',
             confirmButtonText: 'OK',
             backdrop: 'rgba(0,0,0,0.4)'
@@ -178,16 +205,16 @@ if(isset($_SESSION['delete_produit'] )){
 
     <!-- start form ajouter product ************************************ -->
 
-    <form action="insert_product.php"  class="form_add_product" method="POST" enctype="multipart/form-data" id="form">
+    <form action="insert/insert_product.php"  class="form_add_product" method="POST" enctype="multipart/form-data" id="form" style="border-radius: 10px">
         <div class="close_btn_form_product">&times</div>
         <div class="form-group">
             <label for="productName">Nom du produit</label>
-            <input type="text" id="productName" name="productName" class="form-control" required>
+            <input type="text" id="productName" name="productName" placeholder="Saisir le nom du produit" class="form-control" required>
         </div>
 
         <div class="form-group">
             <label for="productQuantite">Quantité</label>
-            <input type="number" id="productQuantite" name="productQuantite" class="form-control" value="1">
+            <input type="number" id="productQuantite" name="productQuantite" placeholder="Saisir la quantité" class="form-control" value="1">
         </div>
 
         <div class="form-group">
@@ -245,7 +272,7 @@ if(isset($_SESSION['delete_produit'] )){
             unset($_SESSION['product_data'] ); 
      ?>
 
-    <form action="insert_update_product.php" class="form_update_product" method="POST" enctype="multipart/form-data" style="display: block"  >
+    <form action="insert_update/insert_update_product.php" class="form_update_product" method="POST" enctype="multipart/form-data" style="display: block"  >
         <div class="close_btn_form_product_update"  ><b class="close_btn_form_product_update">&times</b></div>
 
 
@@ -284,7 +311,7 @@ if(isset($_SESSION['delete_produit'] )){
             </select>
         </div>
 
-        <div class="form-group">
+        <div id="label_image_update" class="form-group">
             <label for="updateProductImage" class="Image_design_update">Choisir une image</label>
             <input type="file" id="updateProductImage" name="image" class="form-control_update" style="display: none">
         </div>
@@ -297,6 +324,8 @@ if(isset($_SESSION['delete_produit'] )){
   
   <!-- start script close update form  -->
   <script>
+   
+
         let form_update_product = document.querySelector(".form_update_product");
 
 
@@ -326,8 +355,17 @@ if ((form_update_product.style).display == 'block'){
 
     
 </div>
+<script>
+    // notification hidden
+let produitNotification = document.getElementById("produitNotification");
+produitNotification.style.display = 'none';
 
+
+</script>
 <script src="js/product.js"></script>
+
+
+<?php include "footer.php"?>
 
 
 

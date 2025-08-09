@@ -4,6 +4,19 @@ session_start();
 include "../include/config.php";   // Assurez-vous que $conn1 est défini ici
 include "functions/chiffre.php";
 
+if(isset($_GET['token'])){
+   if(decryptId($_GET['token']) != 'token'){
+   header("location:error.php");
+   exit();
+   }
+}else{
+    header("location:error.php");
+   exit();
+};
+
+
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
 
     $id = decryptId($_GET['id']);  // suppose que cela renvoie un ID numérique

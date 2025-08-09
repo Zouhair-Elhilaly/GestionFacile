@@ -5,6 +5,17 @@ session_start();
 require_once '../../include/config.php';
 require_once '../../admin/functions/chiffre.php';
 
+if(isset($_GET['token'])){
+    if(decryptId($_GET['token']) != 'hello'){
+        header("location:../../error.php");
+        exit();
+    }
+}else{
+      header("location:../../error.php");
+        exit();
+}
+
+
 if($_SERVER['REQUEST_METHOD'] == 'GET'){
 
     $_SESSION['insert_commande'] = '';
@@ -80,6 +91,7 @@ if($res){
             'type' => 'success',
             'msg' => 'Produit ajouté avec succès.'
         ];
+         $details->close();
     }else{
         $_SESSION['insert_commande'] = [
             'type' => 'error',
@@ -96,7 +108,7 @@ if($res){
 }
     $stmt->close(); 
     $conn1->close();
-    $details->close();
+   
 }
 
 }  //end stock==0

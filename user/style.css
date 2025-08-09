@@ -5,6 +5,9 @@
 }
 
 :root {
+  --titleColor: #7c3aed ;
+  --color: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) ;
+   --gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   --primary-color: #3b82f6;
   --primary-dark: #2563eb;
   --secondary-color: #64748b;
@@ -12,16 +15,21 @@
   --warning-color: #f59e0b;
   --danger-color: #ef4444;
   --white: #ffffff;
+  --bg-logo:#b8b2b2;
+  --text-color:  #1e293b;
   --gray-50: #f8fafc;
   --gray-100: #f1f5f9;
   --gray-200: #e2e8f0;
   --gray-300: #cbd5e1;
   --gray-400: #94a3b8;
   --gray-500: #64748b;
+  --light: #64748b;
+  --text-light: #cbd5e1;
   --gray-600: #475569;
   --gray-700: #334155;
   --gray-800: #1e293b;
   --gray-900: #0f172a;
+  --shadow1: 0 1px 2px  rgb(26, 25, 25);
   --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1),
@@ -29,7 +37,14 @@
 }
 
 [data-theme="dark"] {
+  --bg-logo:#ffffff;
+  --titleColor: #7c3aed;
+  --light: #6e7b8d;
+   --text-color: #ffffff;
+  --shadow1:  0 1px 2px  rgb(239, 232, 232);
   --white: #1e293b;
+  --color: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) ;
+  --text-light:#475569;
   --gray-50: #0f172a;
   --gray-100: #1e293b;
   --gray-200: #334155;
@@ -41,6 +56,9 @@
   --gray-800: #f1f5f9;
   --gray-900: #f8fafc;
 }
+
+
+   
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
@@ -57,7 +75,7 @@ body {
 }
 
 /* Sidebar */
-.sidebar {
+/* .sidebar {
   width: 280px;
   background: var(--white);
   border-right: 1px solid var(--gray-200);
@@ -69,35 +87,228 @@ body {
   z-index: 1000;
 }
 
+
+@media (max-width:768px){
+  .toggle{
+    display:block !important
+  }
+}
+
+
+.toggle{
+  position:absolute;
+  right: 0;
+  
+  /* padding: 4px; /
+  display:flex;
+  justify-content: center;
+  align-items:center;
+  width:20px;
+  text-align: center;
+  height:20px;
+  /* font-size: 20px; */
+  /* font-weight: 800; /
+  border-radius:50%;
+  cursor:pointer;
+  color:white;
+  display:none;
+  /* background-color: #059669; /
+  overflow: auto;
+  z-index: 9999;
+  background: linear-gradient(to right, #cf4aea, #50a0ce);
+
+
+   font-family: 'VotrePolice', sans-serif;
+ 
+}
+
+
+
+
+
+
+
+/* Corrections CSS pour la sidebar */
+
+/* Sidebar de base */
+
+
+
+
+
+.sidebar-header {
+  padding: 2rem !important;
+  border-bottom: 1px solid var(--gray-200) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  cursor:pointer;
+}
+
+
+
+.sidebar {
+  width: 280px;
+  background: var(--white);
+  border-right: 1px solid var(--gray-200);
+  box-shadow: var(--shadow);
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  left: 0; /* Position par défaut */
+}
+
+/* État collapsed (desktop) */
 .sidebar.collapsed {
   width: 80px;
 }
 
-.sidebar-header {
-  padding: 2rem;
-  border-bottom: 1px solid var(--gray-200);
+/* État collapsed2 (mobile fermé) */
+.sidebar.collapsed2 {
+  width: 0;
+  overflow: hidden;
+}
+
+/* État mobile ouvert */
+.sidebar.mobile-open {
+  width: 280px;
+  left: 0;
+}
+
+/* Toggle button */
+.toggle {
+  position: absolute;
+  /* right: -10px;Ajustement pour être visible */
+  top: 20px;
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 1rem;
+  padding:6px !important;
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  border-radius: 50%;
+  cursor: pointer;
+  color: white;
+  background: linear-gradient(to right, #cf4aea, #50a0ce);
+  font-family: 'VotrePolice', sans-serif;
+  z-index: 9999;
+   display: none; /*Caché par défaut */
+}
+
+.quantite_commande{
+    width: 20px;
+    height:20px;
+    background-color: red;
+    border-radius: 50%;
+    position: absolute;
+    top:0;
+    right:-3px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+}
+
+
+
+
+
+
+/* Afficher le toggle sur mobile */
+@media (max-width:768px) {
+  .toggle {
+    display: flex !important 
+  }
+  
+  /* Sidebar sur mobile */
+  .sidebar {
+    transform: translateX(-100%); /* Caché par défaut sur mobile */
+  }
+  
+  .sidebar.mobile-open {
+    transform: translateX(0); /* Visible quand ouvert */
+  }
+  
+  .sidebar.collapsed2 {
+    transform: translateX(-100%);
+    width: 280px; /* Garder la largeur normale sur mobile */
+  }
+}
+
+/* Main content */
+.main-content {
+  flex: 1;
+  margin-left: 280px;
+  transition: all 0.3s ease;
+}
+
+.sidebar.collapsed + .main-content {
+  margin-left: 80px;
+}
+
+/* Sur mobile, pas de margin */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0 !important;
+  }
+}
+
+/* Logo adjustments */
+.sidebar.collapsed .logo {
+  width: 40px;
+  height: 40px;
+}
+
+.sidebar.collapsed .logo-text {
+  display: none;
+}
+
+.sidebar.collapsed .nav-text {
+  display: none;
+}
+
+/* Navigation active state */
+.nav-link:hover,
+.nav-link.active {
+  background: var(--color);
+  color: var(--white);
 }
 
 .logo {
-  width: 40px;
-  height: 40px;
-  background: var(--primary-color);
+  width: 50px;
+  height: 50px;
+  background-color: var(--bg-logo) !important;
   border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--white);
+  background-size: cover;
   font-weight: bold;
   font-size: 1.2rem;
+}
+
+.titleStyle{
+    font-family: 'VotrePolice', sans-serif;
+     background: linear-gradient(to right, #CD0BF4, #00A3FF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent; 
+     font-size: 1.2rem;
+    font-weight: 700;
 }
 
 .logo-text {
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--gray-900);
+}
+.sidebar.collapsed .logo{
+  width: 40px ;
+  height: 40px;
 }
 
 .sidebar.collapsed .logo-text {
@@ -116,7 +327,7 @@ body {
   display: flex;
   align-items: center;
   padding: 1rem 2rem;
-  color: var(--gray-600);
+  color: var(--text-color);
   text-decoration: none;
   transition: all 0.2s ease;
   cursor: pointer;
@@ -124,7 +335,7 @@ body {
 
 .nav-link:hover,
 .active {
-  background: var(--primary-color);
+  background: var(--color);
   color: var(--white);
 }
 
@@ -135,9 +346,9 @@ body {
   text-align: center;
 }
 
-.nav-text {
+/* .nav-text {
   font-weight: 500;
-}
+} */
 
 .sidebar.collapsed .nav-text {
   display: none;
@@ -215,7 +426,7 @@ body {
 .user-avatar {
   width: 40px;
   height: 40px;
-  background: var(--primary-color);
+  background: var(--color);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -270,8 +481,34 @@ body {
 }
 
 /* Categories Grid */
-.categories-grid {
+
+
+
+/* start  */
+ #scrollTopBtn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background: var(--gradient); /* Vert */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    display: none; /* Caché par défaut */
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: 0.3s;
+    z-index: 30000
 }
+
+#scrollTopBtn:hover {
+    transform: scale(1.1);
+}
+
 
 .category-card {
   width: 100%;
@@ -292,7 +529,7 @@ body {
             flex-direction: column;
             justify-content: center; */
   max-width: 400px;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow1);
   padding: 2rem;
 }
 
@@ -436,8 +673,10 @@ body {
   bottom: 5%;
   left: 60%;
   top: 90%;
+  /* background-color: var(--titleColor) !important; */
   transform: translate(-50%,-50%);
   text-align: center;
+  color: var(--white) !important;
   background-position: bottom center;
 }
 
@@ -514,7 +753,12 @@ body {
 .cart-table th {
   background: var(--gray-50);
   font-weight: 600;
-  color: var(--gray-700);
+  color: var(--titleColor) !important;
+}
+
+
+th{
+  color: var(--titleColor) !important;
 }
 
 .quantity-controls {
@@ -586,6 +830,10 @@ body {
   padding: 1rem;
   text-align: left;
   border-bottom: 1px solid var(--gray-200);
+}
+
+td{
+  color: var(--text-color);
 }
 
 .orders-table th {
@@ -728,7 +976,7 @@ body {
   }
 
   .main-content {
-    margin-left: 0;
+    margin-left: 0 !important;
   }
 
   .cart-table {
@@ -833,7 +1081,7 @@ body {
 .text h3 {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #333;
+  color: var(--light);
   margin: 0 0 5px 0;
 }
 
@@ -888,7 +1136,7 @@ body {
 }
 
 .search-container input[type="search"]:focus {
-  background-color: #fff;
+  background-color: var(--text-light) !important;
   border-color: #3f83f8;
   box-shadow: 0 0 5px rgba(63, 131, 248, 0.3);
 }
@@ -935,3 +1183,80 @@ body {
   background-color: #3085d6 !important;
 }
 /* end style popup  */
+
+
+
+/* style search  */
+
+    .search-container {
+  position: relative;
+  margin-bottom: 2.5rem;
+  max-width: 500px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gray-500);
+  font-size: 1.1rem;
+}
+
+#search {
+  width: 100%;
+  padding: 12px 20px 12px 45px;
+  border: 2px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: var(--gray-50);
+  color: var(--gray-800);
+}
+
+#search:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  background-color: var(--text-light) !important;
+}
+
+h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  /* color: var(--titleColor) !important; */
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+h3 span {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--gray-600);
+  background-color: var(--gray-100);
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  margin-left: 1rem;
+  vertical-align: middle;
+}
+
+/* Pour une meilleure disposition responsive */
+@media (max-width: 768px) {
+  .search-container {
+    margin-bottom: 1.5rem;
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+  }
+  
+  h3 span {
+    display: block;
+    margin-left: 0;
+    margin-top: 0.5rem;
+    width: fit-content;
+  }
+}
+
+/* end style search  */

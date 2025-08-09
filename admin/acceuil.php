@@ -1,8 +1,56 @@
-<?php include_once "header.php"; ?>
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="css/acceuil.css">
-<?php include_once "navbar.php"; ?>
-<?php include_once "../include/config.php"; ?>
+<?php 
+define('SECURE_ACCESS', true);
+ include_once "header.php"; ?>
+<!-- <link rel="stylesheet" href="style.css"> -->
+<link rel="stylesheet" href="css/acceuil.php">
+
+<!-- < ?php include_once "../include/config.php";  -->
+
+<?php include_once "navbar.php"; 
+
+
+
+
+// start insert_signature
+
+if(isset($_SESSION['insert_signature'])){
+    if(!empty($_SESSION['insert_signature'])){
+        $text = $_SESSION['insert_signature']['msg'];
+        $type = $_SESSION['insert_signature']['type'];
+        echo "<script>
+        Swal.fire({
+            icon: '$type',
+            title: 'Notification',
+            text: '$text',
+            timer: 3000 
+        });</script>";
+        
+        unset($_SESSION['insert_signature']);
+    }
+}
+// end insert_signature
+
+
+// start affiche erreur de logout
+
+if(isset($_SESSION['empty_admin'])){
+    if(!empty($_SESSION['empty_admin'])){
+        $text = $_SESSION['empty_admin']['msg'];
+        $type = $_SESSION['empty_admin']['type'];
+        echo "<script>
+        Swal.fire({
+            icon: '$type',
+            title: 'Notification',
+            text: '$text',
+            timer: 3000 
+        });</script>";
+        
+        unset($_SESSION['empty_admin']);
+    }
+}
+// end affiche erreur de logout
+
+?>
 
 <div class="main_accueil">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -86,23 +134,31 @@
 
                 <div class="stats-container">
                     <div class="stat-item">
-                        <div class="stat-number"><?= $totalProduits['counter'] ?></div>
+                        <div class="stat-number"><?= $totalProduits['counter']? $totalProduits['counter']:0 ?></div>
                         <div class="stat-label">Total Produits</div>
                     </div>
 
                   
                    
                      
-                        <!-- <div class="stat-item">
-                            <div class="stat-number"><?= $catCounter['id_C']?></div>
-                            <div class="stat-label"><?= htmlspecialchars($row['nom_category']) ?></div>
-                        </div> -->
+
       
                 </div>
             </div>
 
             <!-- end card des produit -->
 
+            <?php 
+            
+            $administrator = $conn1->prepare("SELECT * from admin WHERE id_admin = ? and adm_id_admin IS NULL");
+            $administrator->bind_param('i',$_SESSION['id_admin']);
+            $administrator->execute();
+            $resA = $administrator->get_result();
+            $administrator->close();
+            if($resA->num_rows > 0){
+
+            
+            ?>
             <!-- Card 2: Email Provincial -->
             <div class="card">
                 <div class="card-header">
@@ -112,17 +168,19 @@
                     <div class="card-title">Génération email Povincial</div>
                 </div>
 
-                <form method="post">
+                <form id="emailForm">
                     <div class="form-group">
-                        <label for="employeeEmail">Email Provincial</label>
-                        <input type="email" name="email_provincial" id="employeeEmail" class="form-control" placeholder="exemple@province.gov.ma" required>
+                        <label for="employeeEmail">Email Povincial</label>
+                        <input onmouseleave="checkEmail()"  type="text" name="email_provincial" id="employeeEmail" class="form-control" placeholder="exemple@province.gov.ma">
+                        <label for="employeeEmail">Mot de Passe application</label>
+                        <input type="password" name="password_povincial"  class="form-control" placeholder="........." id="employeePassword">
                     </div>
-                    <button type="submit" name="generate_email" class="btn">
+                    <button onclick="validateData()" name="generate_email" class="btn">
                         <i class="fas fa-key"></i>
                         Ajouter email Povincial
                     </button>
-                </form>
-
+                     </form>
+                    <script src="js/acceuil.js"></script>
                 <?php
                 if (isset($_POST['generate_email'])) {
                     $email = $_POST['email_provincial'];
@@ -131,6 +189,7 @@
                 }
                 ?>
             </div>
+            <?php }?>
 
             <!-- Card 3: Upload signature -->
             <div class="card">
@@ -141,7 +200,7 @@
                     <div class="card-title">Signature Administrateur</div>
                 </div>
 
-                <form method="post" enctype="multipart/form-data">
+                <form method="post" action="insert/insert_signature.php" enctype="multipart/form-data">
                     <div class="form-group">
                         <label  class="label-upload " for="dg">Choisir une image</label>
                         <input style="display:none" id="dg"  type="file" name="signature" accept="image/*" required >
@@ -175,4 +234,11 @@
     </div>
 </div>
 
-<?php include_once "footer.php"; ?>
+
+
+<?php
+
+
+
+
+include_once "footer.php"; ?>

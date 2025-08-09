@@ -1,8 +1,33 @@
-<?php session_start();
+<?php 
+
+
+if (!defined('SECURE_ACCESS')) {
+    // Si on tente d’accéder directement au fichier sans passer par include
+    header('location:../error.php');
+    exit();
+}
+
+session_start();
 include "../include/config.php";
 include "../admin/functions/chiffre.php";
-// require_once '../include/config.php';
-// require_once '../admin/functions/chiffre.php';
+
+$token = encryptId("hello");
+
+//     // Requête de suppression
+// $sql = "DELETE FROM commande
+//         WHERE status = 'Rejetée'
+//         AND date_rejet IS NOT NULL
+//         AND DATE_ADD(date_rejet, INTERVAL 2 MINUTE) <= NOW()";
+
+
+
+// $stmtDelete = $conn1->prepare($sql);
+
+// $stmtDelete->execute();
+
+// $stmtDelete->close();
+
+
 
 if(isset($_SESSION['email_employe'] )){
     if($_SESSION['email_employe'] != '' and filter_var($_SESSION['email_employe'] , FILTER_VALIDATE_EMAIL) == true){
@@ -19,6 +44,9 @@ if(isset($_SESSION['email_employe'] )){
          
 
     }
+}else{
+    header("location:../error.php");
+    exit();
 }
         $status = 'En attente';
 
@@ -27,7 +55,10 @@ if(isset($_SESSION['email_employe'] )){
          $nbC->execute();
          $counter = $nbC->get_result()->fetch_assoc();
 
-
+if(!isset($_SESSION['employee_priority'])){
+   header("/projet_stage/index.php");
+   exit();
+}
 ?> 
  <input type="hidden" name="" id="email_employe" value="<?= encryptId($email) ?>">
 
@@ -48,14 +79,20 @@ if(isset($_SESSION['email_employe'] )){
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body data-theme="light">
+    
+<button id="scrollTopBtn" title="Aller en haut">
+    ⬆
+</button>
+
     <div class="dashboard-container">
         <!-- Sidebar -->
         <nav class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <div class="logo">RP</div>
-                <div class="logo-text">ReservaPro</div>
+                <img style="background-color: white;" class="logo" src="../uploads/logo.png" alt="img">
+                <div class="titleStyle">GestionFacile</div>
             </div>
             <div class="nav-menu">
+                <div class="toggle"></div>
                 <div class="nav-item Accueil_product">
                     <a class="nav-link " href="home.php">
                         <span class="nav-icon">🏠</span>
@@ -75,10 +112,20 @@ if(isset($_SESSION['email_employe'] )){
                         <span class="nav-text">Mes Commandes</span>
                     </a>
                 </div>
+                            
+
                 <div class="nav-item">
                     <a class="nav-link nav-link1" href="profile_employe.php?id=<?= encryptId($row['id']) ?>">
                         <span class="nav-icon">👤</span>
-                        <span class="nav-text">Mon Profil</span>
+                        <span class="nav-text">Mon Profile</span>
+                    </a>
+                </div>
+   <!-- <a href="#" class="deconnection_btn" onclick="logout()">Déconnexion</a>              -->
+                <div class="nav-item">
+                    <a class="nav-link" onclick="logout('<?= encryptId($_SESSION['idEMploye'])?>', '<?= $token ?>')" href="#?id=<?= encryptId($row['id']) ?>">
+                        <!-- <span class="nav-icon">👤</span> -->
+                         <i style="margin-right: 4px !important" class="fas fa-sign-in-alt"></i>
+                        <span style="margin-left: 4px !important" class="nav-text">Déconnexion</span>
                     </a>
                 </div>
                 
@@ -96,8 +143,13 @@ if(isset($_SESSION['email_employe'] )){
                 <div class="header-right">
                     <a class="show_counter_commande" href="commande_employe.php" style="position: relative"><div  class="user-avatar">🛒<span class="quantite_commande" ><?php echo  $counter['nbCommande'] ?></span></div></a>
                     <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
-                    <div class="user-avatar"><?= strtoupper($row['nom'][0]).strtoupper($row['prenom'][0]) ?></div>
+                    <div class="user-avatar" style="position:relative"> <img class="user-avatar"   style="position: absolute ; width: 100% ; border-radius: 50%; cursor:pointer" title="Profile" src="../admin/protection_image/protection_employe.php?img=<?= $row['image']?>" alt=""></div>
                 </div>
+                <style>
+                    .user-avatar:hover{
+                        transform: scale(1,1)
+                    }
+                </style>
             </header>
 
 <?php  $nbC->close(); ?>

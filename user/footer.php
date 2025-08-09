@@ -42,31 +42,240 @@
 
 
 
+<?php 
+if (!defined('SECURE_ACCESS')) {
+    // Si on tente d’accéder directement au fichier sans passer par include
+    header('location:../error.php');
+    exit();
+}
+?>
 
 
     <!-- start designe toggle  -->
 <script>
-                // Toggle sidebar
-function toggleSidebar() {
-  const sidebar = document.getElementById("sidebar");
-  if (window.innerWidth <= 768) {
-    sidebar.classList.toggle("mobile-open");
-  } else {
-    sidebar.classList.toggle("collapsed");
-  }
-}
+
+    // Logout function
+        function logout(v,d) {
+           // start affiche delete
+                Swal.fire({
+                    title: 'Confirmez',
+                    text: "Êtes-vous sûr de vouloir vous déconnecter ?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Oui, déconnecter  !',
+                    cancelButtonText: 'Annuler',
+                    backdrop: 'rgba(0,0,0,0.7)',
+                    customClass: {
+                        // popup: 'animated fadeIn faster' // Animation (optionnelle)
+                        popup: 'popudMode'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = 'logout.php?id='+v+'&token='+d;
+                    } else {
+                        window.load();
+                    }
+                });
+                // window.location.href = 'login.php';
+            }
+        // }
+
+    
+// Scroll vers le haut à l'élément header
+const btn = document.getElementById("scrollTopBtn");
+
+// Afficher le bouton quand on scrolle
+window.addEventListener("scroll", () => {
+    console.log(window.scrollY)
+    if (window.scrollY > 300) {
+        btn.style.display = "flex"; 
+    } else {
+        btn.style.display = "none";
+    }
+});
+
+btn.addEventListener("click", () => {
+     window.scrollTo({
+        top: 0,          
+        left: 0,          
+        behavior: "smooth" 
+    });
+});
 
 
-  window.addEventListener('DOMContentLoaded', () => {
-    const savedMode = localStorage.getItem('mode') || 'light';
-    document.body.setAttribute('data-theme', savedMode);
+
+
+//                 // Toggle sidebar
+// function toggleSidebar() {
+//   const sidebar = document.getElementById("sidebar");
+//   if (window.innerWidth <= 768) {
+//     sidebar.classList.toggle("mobile-open");
+//      sidebar.classList.remove("collapsed2");
+//   } else {
+//     sidebar.classList.toggle("collapsed");
+//          sidebar.classList.remove("collapsed2");
+
+//   }
+// }
+
+
+
+
+//   window.addEventListener('DOMContentLoaded', () => {
+//     const savedMode = localStorage.getItem('mode') || 'light';
+//     document.body.setAttribute('data-theme', savedMode);
   
 
+//     const themeToggle = document.querySelector('.theme-toggle');
+//     if (themeToggle) {
+//       themeToggle.textContent = savedMode === 'dark' ? '☀️' : '🌙';
+//     }
+
+
+
+
+
+
+//  });
+
+ 
+// // start toggle navbar
+//     let toggle = document.querySelector(".toggle");
+
+// toggle.addEventListener('click', () => {
+//     const sidebar = document.getElementById("sidebar");
+//     sidebar.classList.toggle("collapsed");
+//      if(window.innerWidth <= 768 && toggle.textContent.trim() === '>'){
+//         sidebar.classList.add("collapsed2");
+//         sidebar.style.cssText = `
+//         width:0
+//         `;
+//         // sidebar.classList.remove("collapsed")
+//      }
+//     if(toggle.textContent.trim() === '>'){
+//         toggle.textContent = '<';
+//     } else {
+//         toggle.textContent = '>';
+//     }
+// });
+
+// start 
+
+
+// Solution corrigée pour le toggle de la sidebar
+
+// Toggle sidebar function améliorée
+function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    const toggle = document.querySelector(".toggle");
+    
+    if (window.innerWidth <= 768) {
+        // Mode mobile
+        if (sidebar.classList.contains("mobile-open")) {
+            sidebar.classList.remove("mobile-open");
+            sidebar.classList.add("collapsed2");
+            toggle.textContent = '>';
+        } else {
+            sidebar.classList.add("mobile-open");
+            sidebar.classList.remove("collapsed2", "collapsed");
+            toggle.textContent = '<';
+        }
+    } else {
+        // Mode desktop
+        if (sidebar.classList.contains("collapsed")) {
+            sidebar.classList.remove("collapsed");
+            toggle.textContent = '<';
+        } else {
+            sidebar.classList.add("collapsed");
+            toggle.textContent = '>';
+        }
+        // Supprimer les classes mobiles en mode desktop
+        sidebar.classList.remove("collapsed2", "mobile-open");
+    }
+}
+
+// Toggle navbar amélioré (remplace votre code actuel)
+let toggle = document.querySelector(".toggle");
+
+toggle.addEventListener('click', () => {
+    const sidebar = document.getElementById("sidebar");
+    
+    if (window.innerWidth <= 768) {
+        // Mode mobile
+        if (sidebar.classList.contains("mobile-open")) {
+            sidebar.classList.remove("mobile-open");
+            sidebar.classList.add("collapsed2");
+            toggle.textContent = '>';
+        } else {
+            sidebar.classList.add("mobile-open");
+            sidebar.classList.remove("collapsed2", "collapsed");
+            toggle.textContent = '<';
+        }
+    } else {
+        // Mode desktop
+        sidebar.classList.toggle("collapsed");
+        sidebar.classList.remove("collapsed2", "mobile-open");
+        
+        if (sidebar.classList.contains("collapsed")) {
+            toggle.textContent = '>';
+        } else {
+            toggle.textContent = '<';
+        }
+    }
+});
+
+// Gestion du redimensionnement de la fenêtre
+window.addEventListener('resize', () => {
+    const sidebar = document.getElementById("sidebar");
+    const toggle = document.querySelector(".toggle");
+    
+    if (window.innerWidth > 768) {
+        // Passage en mode desktop
+        sidebar.classList.remove("mobile-open", "collapsed2");
+        if (sidebar.classList.contains("collapsed")) {
+            toggle.textContent = '>';
+        } else {
+            toggle.textContent = '<';
+        }
+    } else {
+        // Passage en mode mobile
+        sidebar.classList.remove("collapsed");
+        if (!sidebar.classList.contains("mobile-open")) {
+            sidebar.classList.add("collapsed2");
+            toggle.textContent = '>';
+        } else {
+            toggle.textContent = '<';
+        }
+    }
+});
+
+// Initialisation au chargement de la page
+window.addEventListener('DOMContentLoaded', () => {
+    const sidebar = document.getElementById("sidebar");
+    const toggle = document.querySelector(".toggle");
+    
+    // État initial basé sur la taille d'écran
+    if (window.innerWidth <= 768) {
+        sidebar.classList.add("collapsed2");
+        toggle.textContent = '>';
+    } else {
+        toggle.textContent = '<';
+    }
+    
+    // Reste de votre code d'initialisation...
+    const savedMode = localStorage.getItem('mode') || 'light';
+    document.body.setAttribute('data-theme', savedMode);
+    
     const themeToggle = document.querySelector('.theme-toggle');
     if (themeToggle) {
-      themeToggle.textContent = savedMode === 'dark' ? '☀️' : '🌙';
+        themeToggle.textContent = savedMode === 'dark' ? '🔆' : '🌙';
     }
- });
+});
+
+// end
+
 
 
   function toggleTheme() {
@@ -80,7 +289,7 @@ function toggleSidebar() {
     body.setAttribute('data-theme', newTheme);
 
     if (themeToggle) {
-      themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+      themeToggle.textContent = newTheme === 'dark' ? '🔆' : '🌙';
     }
   }
 
@@ -105,7 +314,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ****************************** start voir plus
    let email_employe = document.querySelector("#email_employe").value;
-  
+   let token = document.querySelector("#token").value;
+   console.log(token)
+
 
    let voir_plus  = document.querySelector(".voir_plus");
   let card_pies_origin = document.querySelectorAll(".card_pies_origin");
@@ -117,7 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
     e.style.display = 'none';
    })
 
-    fetch('http://localhost/projet_stage/user/api/produit_select.php?select=1').then(res => res.json()).then(data =>{
+    fetch(`http://localhost/projet_stage/user/api/produit_select.php?select=1&token=${token}`).then(res => res.json()).then(data =>{
       
       voir_plus.style.display= 'none';
 
@@ -126,14 +337,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // ******************
           // Création de l'élément card principal
           const card = document.createElement('div');
-          card.className = 'card_pies';
+          card.className = 'card_pies card_search';
           
           // Partie image
           const categoryImage = document.createElement('div');
           categoryImage.className = 'category-image category-icon';
           
           const img = document.createElement('img');
-          img.src = `../admin/image/image_produit/`+e.image;
+          img.src = `../admin/protection_image/image_produit.php?img=`+e.image;
           img.alt = 'Category Image';
           img.className = 'category-img';
           
@@ -145,6 +356,7 @@ document.addEventListener('DOMContentLoaded', function() {
           
           const title = document.createElement('h3');
           title.textContent = e.nom_produit;
+          title.className = 'name';
           textDiv.appendChild(title);
           
           // Compteur de produits
@@ -160,7 +372,7 @@ document.addEventListener('DOMContentLoaded', function() {
           
           // Bouton Ajouter
           const link = document.createElement('a');
-          link.href = `insert/insert_product.php?id=${e.id_produit}&email=${email_employe}&page=produit`;
+          link.href = `insert/insert_product.php?id=${e.id_produit}&email=${email_employe}&page=produit&token=${token}`;
           link.className = 'btn btn-success';
           link.textContent = 'Ajouter';
           
@@ -187,6 +399,14 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log(error)
     })
    })
+
+
+
+
+   let sidebar_header = document.querySelector(".sidebar-header");
+     sidebar_header.addEventListener('click' ,()=>{
+        window.location = 'home.php';
+     })
 
 </script>
 <!-- end designe toggle  -->

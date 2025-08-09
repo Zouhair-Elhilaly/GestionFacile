@@ -2,6 +2,19 @@
 require_once '../../include/config.php';
 header('Content-Type: application/json');
 
+include "../../admin/functions/chiffre.php";
+
+if(isset($_GET['token'])){
+    if(decryptId($_GET['token']) != 'hello'){
+        header("location:../../error.php");
+        exit();
+    }
+}else{
+      header("location:../../error.php");
+        exit();
+}
+
+
 // Vérifie si la méthode est GET
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 

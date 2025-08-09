@@ -4,27 +4,24 @@ document.querySelectorAll(".input_commande").forEach((inputCommande, index) => {
     let inputHidden = document.querySelectorAll(".input_hidden")[index];
     let idCommande = inputHidden.value;
     let id_product_hidden = document.querySelector(".id_product_hidden").value;
-   
-    // console.log(idCommande);
+    let token = document.querySelector("#token").value;
+    console.log(idCommande);
+
+    console.log(token);
 
     //  console.log(id_product_hidden);
     if (quantite > 0) {
       fetch(
-        `http://localhost/projet_stage/user/api/commande.php?id=${idCommande}&quantite=${quantite}&id_product_hidden=${id_product_hidden}`
+        `http://localhost/projet_stage/user/api/commande.php?&token=${token}&id=${idCommande}&quantite=${quantite}&id_product_hidden=${id_product_hidden}`
       )
         .then((response) => response.json())
         .then((data) => {
-
-
           Swal.fire({
             icon: `${data.type}`,
             title: "Opération réussie !",
             text: `${data.message}`,
             timer: 3000,
           });
-
-
-          
         })
         .catch((error) => {
           console.log(error);
@@ -58,4 +55,3 @@ document.querySelectorAll(".input_commande").forEach((inputCommande, index) => {
 //   });
 // });
 
- 

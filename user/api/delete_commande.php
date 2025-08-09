@@ -5,6 +5,17 @@ require_once '../../include/config.php';
 require_once '../../admin/functions/chiffre.php';
 
 
+if(isset($_GET['token'])){
+    if(decryptId($_GET['token']) != 'hello'){
+        header("location:../../error.php");
+        exit();
+    }
+}else{
+      header("location:../../error.php");
+        exit();
+}
+
+
 if (isset($_GET['id'])) {
     $id = filter_var((decryptId($_GET['id'])) , FILTER_SANITIZE_NUMBER_INT);
 

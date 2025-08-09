@@ -1,0 +1,9 @@
+<FilesMatch "\.js$">
+    Order deny,allow
+    Deny from all
+
+    SetEnvIf Referer "localhost/projet_stage" good_ref
+    Allow from env=good_ref
+
+    ErrorDocument 403 /error.php
+</FilesMatch>

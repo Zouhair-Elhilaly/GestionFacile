@@ -3,6 +3,18 @@
 require_once '../../include/config.php';
 header('Content-Type: application/json');
 
+include "../../admin/functions/chiffre.php";
+
+if(isset($_GET['token'])){
+    if(decryptId($_GET['token']) != 'hello'){
+        header("location:../../error.php");
+        exit();
+    }
+}else{
+      header("location:../../error.php");
+        exit();
+}
+
 if (isset($_GET['quantite']) && isset($_GET['id']) && $_GET['id_product_hidden']) {
     $quantite = filter_input(INPUT_GET, 'quantite', FILTER_SANITIZE_NUMBER_INT);
     $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);

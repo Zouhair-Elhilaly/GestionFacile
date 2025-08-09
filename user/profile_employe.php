@@ -1,4 +1,5 @@
 <?php 
+define('SECURE_ACCESS', true);
 include 'header.php';
 
 ?>
@@ -19,11 +20,16 @@ $resPost = $post->get_result()->fetch_assoc();
 
 ?>
 
+<style>
+    label{
+        color: var(--titleColor) !important
+    }
+</style>
       <!-- Page Profil -->
                 <div >
-                    <h3 style="margin-bottom: 2rem; color: var(--gray-900);">Mon Profil</h3>
+                    <h3 style="margin-bottom: 2rem; color: var(--titleColor);">Mon Profile</h3>
                     <div class="profile-form">
-                        <center class="center_img"><img id="image_profile" src="../admin/uploads_employees/<?= $res['image'] ?>" alt=""></center>
+                        <center class="center_img"><img id="image_profile" src="../admin/protection_image/protection_employe.php?img=<?= $res['image'] ?>" alt=""></center>
                         <form>
                             <div class="form-group">
                                 <label class="form-label">Nom complet</label>
@@ -63,7 +69,7 @@ $resPost = $post->get_result()->fetch_assoc();
 <style>
 
     .nav-link1{
-          background: var(--primary-color);
+          background: var(--titleColor);
           color: var(--white);
     }
 </style>

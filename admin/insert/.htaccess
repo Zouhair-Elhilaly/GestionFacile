@@ -1,0 +1,6 @@
+<FilesMatch "\.php$">
+    Require local
+</FilesMatch>
+
+# Rediriger les erreurs 404 vers une page personnalisée
+# ErrorDocument 404 /projet_stage/admin/error.php
