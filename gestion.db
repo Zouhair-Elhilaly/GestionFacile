@@ -1,0 +1,193 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+CREATE TABLE `admin` (
+  `id_admin` int(11) NOT NULL,
+  `adm_id_admin` int(11) DEFAULT NULL,
+  `nom` varchar(50) DEFAULT NULL,
+  `prenom` varchar(50) DEFAULT NULL,
+  `email` varchar(50) NOT NULL,
+  `mot_de_passe` varchar(255) DEFAULT NULL,
+  `telephone` varchar(10) DEFAULT NULL,
+  `image` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `category` (
+  `id_category` int(11) NOT NULL,
+  `nom_category` varchar(50) NOT NULL,
+  `description` text NOT NULL,
+  `image` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `commande` (
+  `id_command` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
+  `date_commande` datetime DEFAULT current_timestamp(),
+  `status` enum('En attente','Confirmée','Rejetée','Signé') NOT NULL DEFAULT 'En attente',
+  `date` datetime NOT NULL DEFAULT current_timestamp(),
+  `utilisee` tinyint(1) NOT NULL DEFAULT 0,
+  `id_document` int(11) DEFAULT NULL,
+  `date_rejet` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `config` (
+  `id` int(11) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `image_signature` varchar(200) NOT NULL,
+  `mot_de_passe_app` varchar(200) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `document` (
+  `id_document` int(11) NOT NULL,
+  `nom_document` varchar(255) DEFAULT NULL,
+  `date_ajout` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `détailler` (
+  `id_command` int(11) NOT NULL,
+  `id_produit` int(11) NOT NULL,
+  `quantité` decimal(10,0) DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `employé` (
+  `id` int(11) NOT NULL,
+  `id_post` int(11) DEFAULT NULL,
+  `prenom` varchar(50) DEFAULT NULL,
+  `nom` varchar(50) DEFAULT NULL,
+  `email` varchar(50) DEFAULT NULL,
+  `Telephone` varchar(10) DEFAULT NULL,
+  `genre` varchar(50) DEFAULT NULL,
+  `nationalite` varchar(50) DEFAULT NULL,
+  `ville` varchar(50) DEFAULT NULL,
+  `CNIE` varchar(20) NOT NULL,
+  `mot_de_passe_em` text NOT NULL,
+  `image` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `jetons` (
+  `id` int(11) NOT NULL,
+  `id_utilisateur` int(11) NOT NULL,
+  `role` enum('employé','admin') NOT NULL,
+  `jeton_hache` varchar(255) NOT NULL,
+  `expire_le` datetime NOT NULL,
+  `cree_le` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `post` (
+  `id_post` int(11) NOT NULL,
+  `id_service` int(11) NOT NULL,
+  `nom_post` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `produit` (
+  `id_produit` int(11) NOT NULL,
+  `id_category` int(11) NOT NULL,
+  `nom_produit` varchar(50) DEFAULT NULL,
+  `stock` varchar(50) DEFAULT NULL,
+  `image` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `service` (
+  `id_service` int(11) NOT NULL,
+  `nom_service` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Indexes
+ALTER TABLE `admin`
+  ADD PRIMARY KEY (`id_admin`),
+  ADD KEY `FK_CRÉE` (`adm_id_admin`);
+
+ALTER TABLE `category`
+  ADD PRIMARY KEY (`id_category`);
+
+ALTER TABLE `commande`
+  ADD PRIMARY KEY (`id_command`),
+  ADD KEY `FK_C_EM` (`id`),
+  ADD KEY `document_FK` (`id_document`);
+
+ALTER TABLE `config`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `document`
+  ADD PRIMARY KEY (`id_document`);
+
+ALTER TABLE `détailler`
+  ADD PRIMARY KEY (`id_command`,`id_produit`),
+  ADD KEY `FK_DÉTAILLER` (`id_produit`);
+
+ALTER TABLE `employé`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_OCCUPE` (`id_post`);
+
+ALTER TABLE `jetons`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `post`
+  ADD PRIMARY KEY (`id_post`),
+  ADD KEY `FK_CONTIENT` (`id_service`);
+
+ALTER TABLE `produit`
+  ADD PRIMARY KEY (`id_produit`),
+  ADD KEY `FK_APPARTIENT` (`id_category`);
+
+ALTER TABLE `service`
+  ADD PRIMARY KEY (`id_service`);
+
+-- AUTO_INCREMENT
+ALTER TABLE `admin`
+  MODIFY `id_admin` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
+
+ALTER TABLE `category`
+  MODIFY `id_category` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+
+ALTER TABLE `commande`
+  MODIFY `id_command` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=334;
+
+ALTER TABLE `config`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+ALTER TABLE `document`
+  MODIFY `id_document` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+
+ALTER TABLE `employé`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
+
+ALTER TABLE `jetons`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+
+ALTER TABLE `post`
+  MODIFY `id_post` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+
+ALTER TABLE `produit`
+  MODIFY `id_produit` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+
+ALTER TABLE `service`
+  MODIFY `id_service` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+
+-- Constraints
+ALTER TABLE `admin`
+  ADD CONSTRAINT `FK_CRÉE` FOREIGN KEY (`adm_id_admin`) REFERENCES `admin` (`id_admin`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `commande`
+  ADD CONSTRAINT `FK_C_EM` FOREIGN KEY (`id`) REFERENCES `employé` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `document_FK` FOREIGN KEY (`id_document`) REFERENCES `document` (`id_document`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `détailler`
+  ADD CONSTRAINT `FK_DÉTAILLER` FOREIGN KEY (`id_produit`) REFERENCES `produit` (`id_produit`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_DÉTAILLER2` FOREIGN KEY (`id_command`) REFERENCES `commande` (`id_command`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `employé`
+  ADD CONSTRAINT `FK_OCCUPE` FOREIGN KEY (`id_post`) REFERENCES `post` (`id_post`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `post`
+  ADD CONSTRAINT `FK_CONTIENT` FOREIGN KEY (`id_service`) REFERENCES `service` (`id_service`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `produit`
+  ADD CONSTRAINT `FK_APPARTIENT` FOREIGN KEY (`id_category`) REFERENCES `category` (`id_category`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+COMMIT;
