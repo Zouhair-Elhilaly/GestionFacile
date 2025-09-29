@@ -28,7 +28,7 @@ Ce projet a été réalisé dans le cadre d’un stage d’initiation à l’EST
 
 ## 💻 Technologies
 
-* HTML5, CSS3, JavaScript
+* HTML5, CSS3, JavaScript, PHP, Mysql
 * Design responsive (mobile-first)
 * Git/GitHub pour la gestion du code
 
